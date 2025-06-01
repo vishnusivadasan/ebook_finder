@@ -21,7 +21,8 @@ class EbookSearcher:
             "/mnt/books",
             "/mnt/desktop",
             "/mnt/ebooks",
-            "/mnt/calibre"
+            "/mnt/calibre",
+            "/mnt/kindle"  # Add the mounted Kindle directory
         ]
         
         # Add container mount points if they exist
@@ -38,6 +39,7 @@ class EbookSearcher:
             str(home / "Library" / "Application Support" / "Kindle"),
             "/Applications/Kindle.app/Contents/Resources",
             str(home / "Calibre Library"),
+            "/Users/vishnusivadasan/smbshare/Books/Kindle"  # Add the new Kindle books directory
         ]
         
         common_dirs.extend(local_dirs)

@@ -1,35 +1,38 @@
-# Git files
+# Version control
 .git
 .gitignore
 
-# Documentation
-*.md
-
-# Python cache
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 *.so
-.pytest_cache
-
-# Virtual environments
-venv/
+.Python
 env/
+venv/
 ENV/
+env.bak/
+venv.bak/
 
-# IDE files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Docker files (we don't need these inside the container)
-Dockerfile
-docker-compose.yml
-.dockerignore 
+# Documentation
+README.md
+OPTIMIZATION.md
+DOCKER.md
+
+# Docker files not needed in container
+Dockerfile*
+docker-compose*.yml
+
+# Keep only the files needed for the specific build
+# For FastAPI build, we'll copy specific files in Dockerfile 

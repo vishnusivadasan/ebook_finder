@@ -1,295 +1,188 @@
-import streamlit as st
+from fastapi import FastAPI, Request, Form, HTTPException
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 import os
 from pathlib import Path
+from typing import List, Optional
 from ebook_search import EbookSearcher
+import json
 
-# Page configuration
-st.set_page_config(
-    page_title="📚 Ebook Search System",
-    page_icon="📚",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+app = FastAPI(title="Ebook Search System", description="A lightweight ebook search system")
 
-# Custom CSS for better styling
-st.markdown("""
-<style>
-    .main-header {
-        text-align: center;
-        color: #2E86AB;
-        margin-bottom: 2rem;
-    }
-    .search-box {
-        margin: 2rem 0;
-    }
-    .book-card {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 10px;
-        margin: 0.5rem 0;
-        border-left: 4px solid #2E86AB;
-    }
-    .book-title {
-        font-weight: bold;
-        color: #2E86AB;
-        font-size: 1.1rem;
-    }
-    .book-info {
-        color: #666;
-        font-size: 0.9rem;
-    }
-    .match-score {
-        background-color: #28a745;
-        color: white;
-        padding: 0.2rem 0.5rem;
-        border-radius: 15px;
-        font-size: 0.8rem;
-        font-weight: bold;
-    }
-    .directory-item {
-        background-color: #f8f9fa;
-        padding: 0.5rem;
-        margin: 0.2rem 0;
-        border-radius: 5px;
-        border-left: 3px solid #2E86AB;
-        color: #333;
-        font-size: 0.9rem;
-        word-wrap: break-word;
-        word-break: break-all;
-        white-space: normal;
-        overflow-wrap: break-word;
-    }
-    .directory-item.invalid {
-        border-left-color: #dc3545;
-        color: #dc3545;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Setup templates (static directory created in Dockerfile)
+templates = Jinja2Templates(directory="templates")
 
-def initialize_directories():
-    """Initialize the search directories in session state"""
-    if 'search_directories' not in st.session_state:
-        searcher = EbookSearcher()
-        default_dirs = searcher.get_common_ebook_directories()
-        st.session_state.search_directories = default_dirs.copy()
+# Mount static files (directory already exists from Dockerfile)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-def main():
-    # Initialize the searcher and directories
-    if 'searcher' not in st.session_state:
-        st.session_state.searcher = EbookSearcher()
+# Initialize searcher
+searcher = EbookSearcher()
+
+# Global state for directories (in production, use Redis/database)
+search_directories = searcher.get_common_ebook_directories()
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    """Main page with search interface"""
+    valid_dirs = [d for d in search_directories if os.path.exists(d)]
+    invalid_dirs = [d for d in search_directories if not os.path.exists(d)]
     
-    initialize_directories()
-    
-    # Title
-    st.markdown("<h1 class='main-header'>📚 Ebook Search System</h1>", unsafe_allow_html=True)
-    
-    # Sidebar for configuration
-    with st.sidebar:
-        st.header("⚙️ Search Configuration")
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "valid_dirs": valid_dirs,
+        "invalid_dirs": invalid_dirs,
+        "total_dirs": len(search_directories)
+    })
+
+@app.post("/search")
+async def search_books(
+    query: str = Form(""),
+    similarity_threshold: int = Form(60)
+):
+    """Search for ebooks"""
+    try:
+        # Get valid directories
+        valid_search_directories = [d for d in search_directories if os.path.exists(d)]
         
-        # Search threshold
-        similarity_threshold = st.slider(
-            "Similarity Threshold",
-            min_value=0,
-            max_value=100,
-            value=60,
-            help="Minimum similarity score for search results"
-        )
+        if not valid_search_directories:
+            return JSONResponse({
+                "success": False,
+                "message": "No valid search directories configured",
+                "results": []
+            })
         
-        st.markdown("---")
+        # Find all ebook files
+        all_books = searcher.find_ebook_files(valid_search_directories)
         
-        # Directory Management Section
-        st.subheader("📁 Search Directories Management")
+        if not all_books:
+            return JSONResponse({
+                "success": False,
+                "message": "No ebook files found in the specified directories",
+                "results": []
+            })
         
-        # Add new directory section
-        st.markdown("**Add New Directory:**")
-        col1, col2 = st.columns([3, 1])
-        
-        with col1:
-            new_directory = st.text_input(
-                "Enter directory path:",
-                placeholder="/path/to/your/ebooks",
-                label_visibility="collapsed"
-            )
-        
-        with col2:
-            if st.button("Add", type="secondary"):
-                if new_directory.strip() and new_directory not in st.session_state.search_directories:
-                    if os.path.exists(new_directory):
-                        st.session_state.search_directories.append(new_directory)
-                        st.success("✅ Added!")
-                        st.rerun()
-                    else:
-                        st.error("❌ Directory doesn't exist")
-                elif new_directory in st.session_state.search_directories:
-                    st.warning("⚠️ Already added")
-        
-        st.markdown("---")
-        
-        # Current directories section
-        st.markdown("**Current Search Directories:**")
-        
-        if st.session_state.search_directories:
-            # Quick actions
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("🔄 Reset to Defaults", help="Restore default directories"):
-                    searcher = st.session_state.searcher
-                    st.session_state.search_directories = searcher.get_common_ebook_directories()
-                    st.success("✅ Reset to defaults!")
-                    st.rerun()
-            
-            with col2:
-                if st.button("🗑️ Clear All", help="Remove all directories"):
-                    st.session_state.search_directories = []
-                    st.warning("⚠️ All directories cleared!")
-                    st.rerun()
-            
-            st.markdown("**Active Directories:**")
-            
-            # Display each directory with remove option
-            directories_to_remove = []
-            
-            for i, directory in enumerate(st.session_state.search_directories):
-                col1, col2 = st.columns([4, 1])
-                
-                with col1:
-                    # Check if directory exists and show status
-                    if os.path.exists(directory):
-                        st.markdown(f"""
-                        <div class="directory-item">
-                            ✅ {directory}
-                        </div>
-                        """, unsafe_allow_html=True)
-                    else:
-                        st.markdown(f"""
-                        <div class="directory-item invalid">
-                            ❌ {directory}
-                        </div>
-                        """, unsafe_allow_html=True)
-                
-                with col2:
-                    if st.button("🗑️", key=f"remove_{i}", help=f"Remove {directory}"):
-                        directories_to_remove.append(directory)
-            
-            # Remove directories that were marked for removal
-            for dir_to_remove in directories_to_remove:
-                st.session_state.search_directories.remove(dir_to_remove)
-                st.rerun()
-                
+        # Search for matching books
+        if query.strip():
+            results = searcher.search_books(query, all_books, similarity_threshold)
         else:
-            st.info("📭 No search directories configured. Add some directories above.")
+            results = [(book, 100) for book in all_books]
         
-        # Show summary
-        valid_dirs = [d for d in st.session_state.search_directories if os.path.exists(d)]
-        invalid_dirs = [d for d in st.session_state.search_directories if not os.path.exists(d)]
+        # Format results for JSON response
+        formatted_results = []
+        for book, score in results:
+            formatted_results.append({
+                "filename": book["filename"],
+                "directory": book["directory"],
+                "full_path": book["full_path"],
+                "size_mb": book["size_mb"],
+                "extension": book["extension"],
+                "score": score
+            })
         
-        st.markdown("---")
-        st.markdown("**Summary:**")
-        st.info(f"📂 **{len(valid_dirs)}** valid directories")
-        if invalid_dirs:
-            st.warning(f"⚠️ **{len(invalid_dirs)}** invalid directories")
-    
-    # Main search interface
-    col1, col2 = st.columns([3, 1])
-    
-    with col1:
-        search_query = st.text_input(
-            "🔍 Search for ebooks:",
-            placeholder="Enter book title, author, or keywords...",
-            key="search_input"
-        )
-    
-    with col2:
-        search_button = st.button("Search", type="primary", use_container_width=True)
-    
-    # Check if we have any valid directories before searching
-    valid_search_directories = [d for d in st.session_state.search_directories if os.path.exists(d)]
-    
-    if not valid_search_directories:
-        st.warning("⚠️ No valid search directories configured. Please add some directories in the sidebar.")
-        return
-    
-    # Perform search when button is clicked or query changes
-    if search_button or search_query:
-        with st.spinner("🔍 Searching for ebooks..."):
-            # Find all ebook files
-            searcher = st.session_state.searcher
-            all_books = searcher.find_ebook_files(valid_search_directories)
-            
-            if not all_books:
-                st.warning("📭 No ebook files found in the specified directories.")
-                st.info("Try adding more directories in the sidebar or check if you have ebooks in the configured locations.")
-                return
-            
-            # Search for matching books
-            if search_query.strip():
-                results = searcher.search_books(search_query, all_books, similarity_threshold)
-            else:
-                results = [(book, 100) for book in all_books]
-            
-            # Display results
-            st.subheader(f"📊 Search Results ({len(results)} found)")
-            
-            if not results:
-                st.info("No books match your search criteria. Try lowering the similarity threshold or using different keywords.")
-                return
-            
-            # Display search results
-            for i, (book, score) in enumerate(results):
-                with st.container():
-                    col1, col2, col3 = st.columns([6, 2, 2])
-                    
-                    with col1:
-                        st.markdown(f"""
-                        <div class="book-card">
-                            <div class="book-title">{book['filename']}</div>
-                            <div class="book-info">
-                                📁 {book['directory']}<br>
-                                📏 {book['size_mb']} MB | 📄 {book['extension'].upper()}
-                            </div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
-                    with col2:
-                        st.markdown(f"""
-                        <div style="text-align: center; padding-top: 1rem;">
-                            <span class="match-score">{score}% Match</span>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
-                    with col3:
-                        if st.button(f"Open Folder", key=f"open_{i}"):
-                            # Open file location in finder/explorer
-                            import subprocess
-                            import platform
-                            
-                            if platform.system() == "Darwin":  # macOS
-                                subprocess.run(["open", "-R", book['full_path']])
-                            elif platform.system() == "Windows":
-                                subprocess.run(["explorer", "/select,", book['full_path']])
-                            else:  # Linux
-                                subprocess.run(["xdg-open", book['directory']])
-    
-    # Display statistics
-    if 'all_books' in locals():
-        st.markdown("---")
-        col1, col2, col3, col4 = st.columns(4)
+        # Calculate statistics
+        total_size = sum(book["size_mb"] for book in all_books)
+        extensions = set(book["extension"] for book in all_books)
+        directories = set(book["directory"] for book in all_books)
         
-        with col1:
-            st.metric("📚 Total Books", len(all_books))
+        return JSONResponse({
+            "success": True,
+            "results": formatted_results,
+            "stats": {
+                "total_books": len(all_books),
+                "total_size_mb": round(total_size, 1),
+                "file_types": len(extensions),
+                "directories": len(directories),
+                "results_count": len(formatted_results)
+            }
+        })
         
-        with col2:
-            total_size = sum(book['size_mb'] for book in all_books)
-            st.metric("💾 Total Size", f"{total_size:.1f} MB")
-        
-        with col3:
-            extensions = set(book['extension'] for book in all_books)
-            st.metric("📄 File Types", len(extensions))
-        
-        with col4:
-            directories = set(book['directory'] for book in all_books)
-            st.metric("📁 Directories", len(directories))
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Search error: {str(e)}",
+            "results": []
+        })
+
+@app.get("/directories")
+async def get_directories():
+    """Get current search directories"""
+    valid_dirs = [d for d in search_directories if os.path.exists(d)]
+    invalid_dirs = [d for d in search_directories if not os.path.exists(d)]
+    
+    return JSONResponse({
+        "valid_dirs": valid_dirs,
+        "invalid_dirs": invalid_dirs,
+        "total": len(search_directories)
+    })
+
+@app.post("/directories/add")
+async def add_directory(directory: str = Form(...)):
+    """Add a new search directory"""
+    global search_directories
+    
+    if not directory.strip():
+        raise HTTPException(status_code=400, detail="Directory path cannot be empty")
+    
+    if directory in search_directories:
+        raise HTTPException(status_code=400, detail="Directory already exists")
+    
+    if not os.path.exists(directory):
+        raise HTTPException(status_code=400, detail="Directory does not exist")
+    
+    search_directories.append(directory)
+    
+    return JSONResponse({
+        "success": True,
+        "message": "Directory added successfully",
+        "directory": directory
+    })
+
+@app.post("/directories/remove")
+async def remove_directory(directory: str = Form(...)):
+    """Remove a search directory"""
+    global search_directories
+    
+    if directory not in search_directories:
+        raise HTTPException(status_code=400, detail="Directory not found")
+    
+    search_directories.remove(directory)
+    
+    return JSONResponse({
+        "success": True,
+        "message": "Directory removed successfully",
+        "directory": directory
+    })
+
+@app.post("/directories/reset")
+async def reset_directories():
+    """Reset to default directories"""
+    global search_directories
+    search_directories = searcher.get_common_ebook_directories()
+    
+    return JSONResponse({
+        "success": True,
+        "message": "Directories reset to defaults",
+        "directories": search_directories
+    })
+
+@app.post("/directories/clear")
+async def clear_directories():
+    """Clear all directories"""
+    global search_directories
+    search_directories = []
+    
+    return JSONResponse({
+        "success": True,
+        "message": "All directories cleared",
+        "directories": []
+    })
+
+@app.get("/healthz")
+async def health_check():
+    """Health check endpoint for Docker"""
+    return {"status": "healthy"}
 
 if __name__ == "__main__":
-    main() 
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8501) 

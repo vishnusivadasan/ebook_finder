@@ -1,6 +1,6 @@
 # 📚 Ebook Search System
 
-A web-based ebook search system built with Streamlit that helps you find and organize your digital book collection.
+A lightweight, web-based ebook search system that helps you find and organize your digital book collection. Built with FastAPI for optimal performance and minimal resource usage.
 
 ## Features
 
@@ -10,7 +10,8 @@ A web-based ebook search system built with Streamlit that helps you find and org
 - 📊 **File Statistics**: View your collection metrics
 - 🖥️ **Cross-Platform**: Works on macOS, Windows, and Linux
 - 📂 **Quick Access**: Open file locations directly from the interface
-- 🐳 **Docker Ready**: Easy deployment with Docker containers
+- 🐳 **Docker Ready**: Optimized deployment with minimal footprint
+- ⚡ **High Performance**: FastAPI backend for speed and efficiency
 
 ## Supported Formats
 
@@ -22,15 +23,9 @@ A web-based ebook search system built with Streamlit that helps you find and org
 - FictionBook (.fb2)
 - Plain Text (.txt)
 
-## Installation & Deployment
+## How to Run
 
-Choose your preferred method:
-
-### 🐳 Option 1: Docker Deployment (Recommended)
-
-Docker provides the easiest way to deploy this application with consistent behavior across all systems.
-
-#### Quick Start with Docker Compose
+### 🎯 Method 1: Docker Compose (Easiest)
 
 1. **Clone the repository:**
    ```bash
@@ -38,7 +33,7 @@ Docker provides the easiest way to deploy this application with consistent behav
    cd kindle_web
    ```
 
-2. **Start with Docker Compose:**
+2. **Start the application:**
    ```bash
    docker-compose up -d
    ```
@@ -46,77 +41,128 @@ Docker provides the easiest way to deploy this application with consistent behav
 3. **Access the application:**
    Open your browser and go to `http://localhost:8501`
 
-#### Manual Docker Commands
+4. **Stop the application:**
+   ```bash
+   docker-compose down
+   ```
 
-1. **Build the image:**
+### 🐳 Method 2: Docker Run (Custom Setup)
+
+1. **Build the Docker image:**
    ```bash
    docker build -t ebook-search .
    ```
 
-2. **Run the container:**
+2. **Run the container with your ebook directories:**
    ```bash
+   # macOS/Linux
    docker run -d \
-     --name ebook-search-app \
+     --name ebook-search \
      -p 8501:8501 \
      -v "$HOME/Documents:/mnt/documents:ro" \
-     -v "$HOME/Downloads:/mnt/downloads:ro" \
      -v "$HOME/Books:/mnt/books:ro" \
+     -v "$HOME/Downloads:/mnt/downloads:ro" \
+     ebook-search
+   
+   # Windows (PowerShell)
+   docker run -d `
+     --name ebook-search `
+     -p 8501:8501 `
+     -v "${env:USERPROFILE}\Documents:/mnt/documents:ro" `
+     -v "${env:USERPROFILE}\Downloads:/mnt/downloads:ro" `
      ebook-search
    ```
 
-#### Volume Mounting Explained
+3. **Access the application:**
+   Open your browser and go to `http://localhost:8501`
 
-The container needs access to your host file system to search for ebooks. This is done through **volume mounts**.
+### 💻 Method 3: Local Development (No Docker)
 
-**Syntax:**
-```
--v "host_path:container_path:permissions"
-```
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-url>
+   cd kindle_web
+   ```
 
-**Examples:**
-
-**macOS/Linux:**
-```bash
--v "$HOME/Documents:/mnt/documents:ro"
--v "/Volumes/ExternalDrive/Books:/mnt/external:ro"
-```
-
-**Windows (PowerShell):**
-```powershell
--v "${env:USERPROFILE}\Documents:/mnt/documents:ro"
--v "D:\Books:/mnt/books:ro"
-```
-
-**Windows (Command Prompt):**
-```cmd
--v "%USERPROFILE%\Documents:/mnt/documents:ro"
-```
-
-#### Customizing Docker Setup
-
-Edit `docker-compose.yml` to add your specific directories:
-
-```yaml
-volumes:
-  - "${HOME}/Documents:/mnt/documents:ro"
-  - "${HOME}/Downloads:/mnt/downloads:ro"
-  - "${HOME}/Books:/mnt/books:ro"
-  - "/path/to/your/ebooks:/mnt/ebooks:ro"
-  - "/Volumes/ExternalDrive:/mnt/external:ro"
-```
-
-### 💻 Option 2: Local Installation
-
-1. **Clone or download this repository**
-2. **Install dependencies:**
+2. **Install Python dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
-3. **Start the application:**
+
+3. **Run the application:**
    ```bash
-   streamlit run app.py
+   python app.py
    ```
-4. **Open your browser** and navigate to `http://localhost:8501`
+
+4. **Access the application:**
+   Open your browser and go to `http://localhost:8501`
+
+### 🔧 Quick Setup Verification
+
+After starting the application:
+
+1. **Check if it's running:**
+   - Visit `http://localhost:8501` in your browser
+   - You should see the Ebook Search interface
+
+2. **Configure directories:**
+   - Use the sidebar to add your ebook directories
+   - For Docker: Use mounted paths like `/mnt/documents`
+   - For local: Use your actual directory paths like `/Users/yourname/Books`
+
+3. **Test search:**
+   - Try searching for a book title or author
+   - Adjust similarity threshold if needed
+
+## Installation & Deployment
+
+### 🚀 Quick Start with Docker (Recommended)
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd kindle_web
+
+# Start the application
+docker-compose up -d
+
+# Access at http://localhost:8501
+```
+
+### 🐳 Manual Docker Setup
+
+```bash
+# Build the image
+docker build -t ebook-search .
+
+# Run with your ebook directories
+docker run -d \
+  --name ebook-search \
+  -p 8501:8501 \
+  -v "$HOME/Documents:/mnt/documents:ro" \
+  -v "$HOME/Books:/mnt/books:ro" \
+  ebook-search
+```
+
+### 💻 Local Development
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+python app.py
+
+# Access at http://localhost:8501
+```
+
+## Docker Image Details
+
+- **Size**: ~226MB (highly optimized)
+- **Base**: Python 3.11 Alpine Linux
+- **Startup**: ~2 seconds
+- **Memory**: ~50MB runtime usage
+- **Dependencies**: 5 core packages
 
 ## Usage
 
@@ -133,7 +179,7 @@ volumes:
 1. **Enter keywords, book titles, or author names** in the search box
 2. **Adjust the similarity threshold** in the sidebar for more/less strict matching
 3. **View results** with match percentages and file information
-4. **Click "Open Folder"** to navigate directly to any ebook's location
+4. **Click book items** to see detailed information
 
 ### Directory Management
 
@@ -153,6 +199,7 @@ The system automatically searches these common directories:
 - `~/Desktop`
 - `~/Library/Application Support/Kindle` (macOS)
 - `~/Calibre Library`
+- `/Users/vishnusivadasan/smbshare/Books/Kindle`
 
 **Docker Container:**
 - `/mnt/documents` (mounted from host)
@@ -161,97 +208,87 @@ The system automatically searches these common directories:
 - `/mnt/ebooks` (mounted from host)
 - Plus any additional mounted directories
 
-## Configuration
+## Advanced Configuration
 
-### Similarity Threshold
-- **High (80-100)**: Only very close matches
-- **Medium (60-80)**: Moderate similarity required
-- **Low (0-60)**: More lenient matching
+### Volume Mounting Examples
 
-### Custom Directories
-Add additional search locations in the sidebar by entering directory paths.
+**macOS/Linux:**
+```bash
+-v "$HOME/Documents:/mnt/documents:ro"
+-v "/Volumes/ExternalDrive/Books:/mnt/external:ro"
+```
+
+**Windows (PowerShell):**
+```powershell
+-v "${env:USERPROFILE}\Documents:/mnt/documents:ro"
+-v "D:\Books:/mnt/books:ro"
+```
+
+### Customizing Docker Setup
+
+Edit the `docker-compose.yml` file:
+
+```yaml
+volumes:
+  - "${HOME}/Documents:/mnt/documents:ro"
+  - "${HOME}/Downloads:/mnt/downloads:ro"
+  - "${HOME}/Books:/mnt/books:ro"
+  - "/path/to/your/ebooks:/mnt/ebooks:ro"
+```
 
 ## Docker Management
 
-### Useful Docker Commands
+### Useful Commands
 
 **Check running containers:**
 ```bash
 docker ps
 ```
 
-**View logs:**
+**View application logs:**
 ```bash
-docker logs ebook-search-app
+docker logs ebook-search
 ```
 
-**Stop the container:**
-```bash
-docker stop ebook-search-app
-```
-
-**Remove the container:**
-```bash
-docker rm ebook-search-app
-```
-
-**Update the application:**
+**Stop and remove:**
 ```bash
 docker-compose down
-docker-compose up -d --build
 ```
 
-### Troubleshooting Docker
-
-**No books found?**
-- Check volume mounts in `docker-compose.yml`
-- Ensure directories exist on your host system
-- Verify Docker has access to your directories
-
-**Permission issues?**
-- **macOS**: Allow Docker access in System Preferences → Security & Privacy
-- **Linux**: Ensure proper directory permissions
-- **Windows**: Make sure drives are shared with Docker
-
-**Port conflicts?**
-Change the port mapping in `docker-compose.yml`:
-```yaml
-ports:
-  - "8502:8501"  # Use port 8502 instead
+**Check image sizes:**
+```bash
+docker images | grep ebook-search
 ```
 
-## Tips for Better Results
+## Documentation
 
-1. **Use descriptive keywords**: Try author names, series titles, or key terms from the book title
-2. **Adjust similarity threshold**: Lower it if you're getting too few results
-3. **Check file naming**: The search works best with properly named files
-4. **Add custom directories**: Include any folder where you store ebooks
-5. **Use Docker for consistency**: Docker deployment ensures the same behavior across all systems
+- **[FastAPI Optimization Guide](FASTAPI_OPTIMIZATION.md)** - Complete optimization details and implementation notes
 
-## Technical Details
+## Performance
 
-- **Backend**: Python with fuzzy string matching (fuzzywuzzy)
-- **Frontend**: Streamlit web framework
-- **Search Algorithm**: Combines partial ratio and token sorting for optimal matching
-- **File Discovery**: Recursive glob pattern matching for supported formats
-- **Containerization**: Docker with volume mounting for file system access
+| Metric | Value |
+|--------|-------|
+| Docker Image Size | 226MB |
+| Startup Time | ~2 seconds |
+| Memory Usage | ~50MB |
+| Dependencies | 5 packages |
+| Base Image | Python 3.11 Alpine |
 
 ## Troubleshooting
 
-**No books found?**
-- Check if your ebooks are in supported formats
-- Add custom directories in the sidebar
-- Verify file permissions for the directories being searched
+### Common Issues
 
-**Search not working well?**
-- Try different keywords or partial titles
-- Lower the similarity threshold
-- Ensure your ebook files have descriptive names
+1. **Port 8501 already in use**: Stop other containers or change port in docker-compose.yml
+2. **No books found**: Check volume mounts and directory permissions
+3. **Slow search**: Reduce similarity threshold or limit search directories
+4. **Container won't start**: Check logs with `docker logs ebook-search`
 
-**Container issues?**
-- Check Docker logs: `docker logs ebook-search-app`
-- Verify volume mounts are correct
-- Ensure directories exist on host system
+### Getting Help
+
+1. Check the logs: `docker logs ebook-search`
+2. Verify volume mounts are correct
+3. Ensure directories contain ebook files
+4. Check that ports are not in use by other applications
 
 ## License
 

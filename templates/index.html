@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ebook Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d4d4d4;
+            --gray-400: #a3a3a3;
+            --gray-500: #737373;
+            --gray-600: #525252;
+            --gray-700: #404040;
+            --gray-800: #262626;
+            --gray-900: #171717;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--white);
+            color: var(--black);
+            line-height: 1.6;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 40px 60px 30px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-200);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 8px;
+            color: var(--black);
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            font-weight: 400;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            flex: 1;
+            height: calc(100vh - 140px);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: var(--gray-50);
+            padding: 40px 30px;
+            border-right: 1px solid var(--gray-200);
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .content {
+            padding: 40px 60px;
+            background: var(--white);
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .search-section {
+            margin-bottom: 40px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 16px;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            color: var(--black);
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--black);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--gray-400);
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: 1px solid var(--black);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+
+        .btn-primary:hover {
+            background: var(--gray-800);
+            border-color: var(--gray-800);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--black);
+            border-color: var(--gray-300);
+            font-size: 13px;
+            padding: 10px 16px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+
+        .btn-danger {
+            background: var(--white);
+            color: var(--black);
+            border-color: var(--gray-300);
+            font-size: 12px;
+            padding: 8px 12px;
+        }
+
+        .btn-danger:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-400);
+        }
+
+        .threshold-section {
+            margin-bottom: 32px;
+        }
+
+        .threshold-section label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 500;
+            color: var(--black);
+            font-size: 14px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--gray-200);
+            outline: none;
+            margin-bottom: 8px;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--black);
+            cursor: pointer;
+            border: 2px solid var(--white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--black);
+            cursor: pointer;
+            border: 2px solid var(--white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .directory-section h3 {
+            margin-bottom: 16px;
+            color: var(--black);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .directory-add {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .directory-add input {
+            flex: 1;
+            padding: 10px 12px;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            color: var(--black);
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .directory-add input:focus {
+            outline: none;
+            border-color: var(--black);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .directory-list {
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            background: var(--white);
+        }
+
+        .directory-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .directory-list::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        .directory-list::-webkit-scrollbar-thumb {
+            background: var(--gray-400);
+            border-radius: 3px;
+        }
+
+        .directory-list::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-500);
+        }
+
+        .directory-item {
+            background: var(--white);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 13px;
+            transition: background-color 0.2s ease;
+            min-height: 44px;
+        }
+
+        .directory-item:last-child {
+            border-bottom: none;
+        }
+
+        .directory-item:hover {
+            background: var(--gray-50);
+        }
+
+        .directory-item.invalid {
+            color: var(--gray-500);
+        }
+
+        .directory-item.invalid:hover {
+            background: var(--gray-50);
+        }
+
+        .directory-path {
+            flex: 1;
+            min-width: 0;
+            word-wrap: break-word;
+            word-break: break-all;
+            line-height: 1.4;
+            padding-right: 8px;
+        }
+
+        .directory-remove-btn {
+            flex-shrink: 0;
+            padding: 4px 8px;
+            font-size: 11px;
+            min-width: 60px;
+            align-self: flex-start;
+        }
+
+        .directory-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 24px;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--gray-300);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .results {
+            margin-top: 24px;
+        }
+
+        .book-item {
+            background: var(--white);
+            padding: 24px;
+            margin: 16px 0;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .book-item:hover {
+            border-color: var(--gray-300);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-title {
+            font-weight: 600;
+            color: var(--black);
+            font-size: 16px;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .book-details {
+            color: var(--gray-600);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .match-score {
+            background: var(--black);
+            color: var(--white);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            margin-left: 16px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-600);
+            font-size: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-200);
+            border-radius: 50%;
+            border-top-color: var(--black);
+            animation: spin 1s linear infinite;
+        }
+
+        .search-form.searching .btn-primary {
+            opacity: 0.7;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .search-form.searching .search-input {
+            background: var(--gray-50);
+            cursor: not-allowed;
+        }
+
+        @keyframes spin {
+            to {transform: rotate(360deg);}
+        }
+
+        .search-status {
+            font-size: 14px;
+            color: var(--gray-600);
+            margin-top: 8px;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        .message {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .message.error {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-200);
+        }
+
+        .message.success {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-200);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--gray-200);
+                padding: 30px 20px;
+                height: auto;
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+            
+            .content {
+                padding: 30px 20px;
+                height: auto;
+                overflow-y: auto;
+            }
+            
+            .header {
+                padding: 30px 20px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 16px;
+            }
+            
+            .search-form {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .btn-primary {
+                width: 100%;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .btn:focus-visible {
+            outline: 2px solid var(--black);
+            outline-offset: 2px;
+        }
+
+        .search-input:focus-visible {
+            outline: 2px solid var(--black);
+            outline-offset: 2px;
+        }
+
+        /* Subtle animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .book-item {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .stat-card {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Clean selection */
+        ::selection {
+            background: var(--black);
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ebook Search</h1>
+            <p>Find and organize your digital library</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="threshold-section">
+                    <label for="threshold">Similarity threshold: <span id="threshold-value">60</span>%</label>
+                    <input type="range" id="threshold" class="slider" min="0" max="100" value="60">
+                </div>
+
+                <div class="directory-section">
+                    <h3>Search directories</h3>
+                    
+                    <div class="directory-add">
+                        <input type="text" id="new-directory" placeholder="/path/to/books">
+                        <button class="btn btn-secondary" onclick="addDirectory()">Add</button>
+                    </div>
+
+                    <div class="directory-actions">
+                        <button class="btn btn-secondary" onclick="resetDirectories()">Reset</button>
+                        <button class="btn btn-danger" onclick="clearDirectories()">Clear</button>
+                    </div>
+
+                    <div id="directory-list" class="directory-list">
+                        <!-- Directories will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content">
+                <div class="search-section">
+                    <form class="search-form" onsubmit="searchBooks(event)">
+                        <input type="text" id="search-query" class="search-input" 
+                               placeholder="Search by title, author, or keywords">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </form>
+                    <div class="search-status" id="search-status"></div>
+                </div>
+
+                <div id="stats" class="stats" style="display: none;">
+                    <!-- Stats will be displayed here -->
+                </div>
+
+                <div id="messages"></div>
+                <div id="results" class="results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentThreshold = 60;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDirectories();
+            
+            // Threshold slider
+            const thresholdSlider = document.getElementById('threshold');
+            const thresholdValue = document.getElementById('threshold-value');
+            
+            thresholdSlider.addEventListener('input', function() {
+                currentThreshold = this.value;
+                thresholdValue.textContent = this.value;
+            });
+        });
+
+        // Load directories
+        async function loadDirectories() {
+            try {
+                const response = await fetch('/directories');
+                const data = await response.json();
+                
+                const listElement = document.getElementById('directory-list');
+                listElement.innerHTML = '';
+                
+                data.valid_dirs.forEach(dir => {
+                    const item = document.createElement('div');
+                    item.className = 'directory-item';
+                    item.innerHTML = `
+                        <span class="directory-path">✓ ${dir}</span>
+                        <button class="btn btn-danger directory-remove-btn" onclick="removeDirectory('${dir}')">Remove</button>
+                    `;
+                    listElement.appendChild(item);
+                });
+
+                data.invalid_dirs.forEach(dir => {
+                    const item = document.createElement('div');
+                    item.className = 'directory-item invalid';
+                    item.innerHTML = `
+                        <span class="directory-path">✗ ${dir}</span>
+                        <button class="btn btn-danger directory-remove-btn" onclick="removeDirectory('${dir}')">Remove</button>
+                    `;
+                    listElement.appendChild(item);
+                });
+                
+            } catch (error) {
+                showMessage('Failed to load directories', 'error');
+            }
+        }
+
+        // Add directory
+        async function addDirectory() {
+            const input = document.getElementById('new-directory');
+            const directory = input.value.trim();
+            
+            if (!directory) return;
+            
+            try {
+                const formData = new FormData();
+                formData.append('directory', directory);
+                
+                const response = await fetch('/directories/add', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    input.value = '';
+                    loadDirectories();
+                    showMessage('Directory added successfully', 'success');
+                } else {
+                    const error = await response.json();
+                    showMessage(error.detail, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to add directory', 'error');
+            }
+        }
+
+        // Remove directory
+        async function removeDirectory(directory) {
+            try {
+                const formData = new FormData();
+                formData.append('directory', directory);
+                
+                const response = await fetch('/directories/remove', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    loadDirectories();
+                    showMessage('Directory removed successfully', 'success');
+                } else {
+                    const error = await response.json();
+                    showMessage(error.detail, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to remove directory', 'error');
+            }
+        }
+
+        // Reset directories
+        async function resetDirectories() {
+            try {
+                const response = await fetch('/directories/reset', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadDirectories();
+                    showMessage('Directories reset to defaults', 'success');
+                }
+            } catch (error) {
+                showMessage('Failed to reset directories', 'error');
+            }
+        }
+
+        // Clear directories
+        async function clearDirectories() {
+            try {
+                const response = await fetch('/directories/clear', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadDirectories();
+                    showMessage('All directories cleared', 'success');
+                }
+            } catch (error) {
+                showMessage('Failed to clear directories', 'error');
+            }
+        }
+
+        // Search books
+        async function searchBooks(event) {
+            event.preventDefault();
+            
+            const query = document.getElementById('search-query').value;
+            const resultsDiv = document.getElementById('results');
+            const statsDiv = document.getElementById('stats');
+            const searchForm = document.querySelector('.search-form');
+            const searchStatus = document.getElementById('search-status');
+            const searchInput = document.getElementById('search-query');
+            const searchButton = searchForm.querySelector('button');
+            
+            // Disable form during search
+            searchForm.classList.add('searching');
+            searchInput.disabled = true;
+            searchButton.disabled = true;
+            searchStatus.textContent = 'Searching your ebook library...';
+            
+            // Show loading
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>Searching through your ebook collection...</div>
+                </div>`;
+            
+            try {
+                const formData = new FormData();
+                formData.append('query', query);
+                formData.append('similarity_threshold', currentThreshold);
+                
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.results, data.stats);
+                    searchStatus.textContent = `Found ${data.results.length} results`;
+                } else {
+                    showMessage(data.message, 'error');
+                    resultsDiv.innerHTML = '';
+                    statsDiv.style.display = 'none';
+                    searchStatus.textContent = '';
+                }
+            } catch (error) {
+                showMessage('Search failed', 'error');
+                resultsDiv.innerHTML = '';
+                statsDiv.style.display = 'none';
+                searchStatus.textContent = '';
+            } finally {
+                // Re-enable form
+                searchForm.classList.remove('searching');
+                searchInput.disabled = false;
+                searchButton.disabled = false;
+            }
+        }
+
+        // Display results
+        function displayResults(results, stats) {
+            const resultsDiv = document.getElementById('results');
+            const statsDiv = document.getElementById('stats');
+            
+            // Display stats
+            statsDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total_books}</div>
+                    <div class="stat-label">Total books</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total_size_mb}</div>
+                    <div class="stat-label">Size (MB)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.file_types}</div>
+                    <div class="stat-label">File types</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.results_count}</div>
+                    <div class="stat-label">Results</div>
+                </div>
+            `;
+            statsDiv.style.display = 'grid';
+            
+            // Display results
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div class="message">No books match your search criteria.</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = results.map(book => `
+                <div class="book-item">
+                    <div class="book-info">
+                        <div class="book-title">${book.filename}</div>
+                        <div class="book-details">
+                            ${book.directory}<br>
+                            ${book.size_mb} MB • ${book.extension.toUpperCase()}
+                        </div>
+                    </div>
+                    <div>
+                        <span class="match-score">${book.score}%</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            
+            messagesDiv.appendChild(messageElement);
+            
+            setTimeout(() => {
+                messageElement.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 
