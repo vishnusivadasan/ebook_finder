@@ -13,7 +13,7 @@ services:
       # Mount your ebook directories from host to container
       - "${HOME}/Documents:/mnt/documents:ro"
       - "${HOME}/Downloads:/mnt/downloads:ro" 
-      - "${HOME}/Books:/mnt/books:ro"
+      - "/home/pi/Elements/Books:/mnt/books:ro"
       - "${HOME}/Desktop:/mnt/desktop:ro"
       # Add more volume mounts as needed for your ebook locations
       # Example for additional directories:
