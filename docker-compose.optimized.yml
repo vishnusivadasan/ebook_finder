@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  ebook-search:
+    build:
+      context: .
+      dockerfile: Dockerfile.micro
+    ports:
+      - "8501:8501"
+    volumes:
+      # Mount your ebook directories from host to container
+      # Adjust these paths to match your local system
+      - "${HOME}/Documents:/mnt/documents:ro"
+      - "${HOME}/Downloads:/mnt/downloads:ro" 
+      - "${HOME}/Books:/mnt/books:ro"
+      - "${HOME}/Desktop:/mnt/desktop:ro"
+      # Add more volume mounts as needed for your ebook locations
+      # Example for additional directories:
+      # - "/path/to/your/ebooks:/mnt/ebooks:ro"
+      # - "/path/to/calibre/library:/mnt/calibre:ro"
+    environment:
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    restart: unless-stopped
+    container_name: ebook-search-app-optimized 

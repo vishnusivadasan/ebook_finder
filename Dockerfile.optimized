@@ -1,0 +1,69 @@
+# Multi-stage build for smaller final image
+FROM python:3.12-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    linux-headers
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+
+# Create a virtual environment and install dependencies
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install Python packages with optimizations
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Production stage
+FROM python:3.12-alpine
+
+# Install only runtime dependencies
+RUN apk add --no-cache \
+    libstdc++ \
+    && rm -rf /var/cache/apk/*
+
+# Copy virtual environment from builder stage
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Set working directory
+WORKDIR /app
+
+# Copy only necessary application files
+COPY app.py .
+COPY ebook_search.py .
+
+# Create mount directories
+RUN mkdir -p /mnt/ebooks /mnt/documents /mnt/downloads /mnt/books /mnt/desktop /mnt/calibre
+
+# Create non-root user for security
+RUN addgroup -g 1000 -S appgroup && \
+    adduser -u 1000 -S appuser -G appgroup
+
+# Change to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 8501
+
+# Set environment variables
+ENV STREAMLIT_SERVER_PORT=8501
+ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
+ENV STREAMLIT_SERVER_HEADLESS=true
+ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8501/healthz || exit 1
+
+# Run the application
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"] 
