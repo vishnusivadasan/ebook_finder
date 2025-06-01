@@ -21,6 +21,10 @@ services:
       # COMMENTED OUT - Personal Mac directory:
       # - "${HOME}/Desktop:/mnt/desktop:ro"
       
+      # SMB share for Raspberry Pi books (if you want to access them)
+      # Uncomment and modify the path below if you want to access SMB mounted books:
+      # - "/Users/vishnusivadasan/smbshare/Books:/mnt/pi_books:ro"
+      
       # Add specific ebook directories only - uncomment and modify as needed:
       # - "${HOME}/Books:/mnt/books:ro"
       # - "/path/to/your/ebooks:/mnt/ebooks:ro"
