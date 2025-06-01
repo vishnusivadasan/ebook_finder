@@ -52,9 +52,32 @@
             border-bottom: 1px solid var(--gray-200);
             flex-shrink: 0;
             background: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .header-section {
+            flex-shrink: 0;
+        }
+
+        .header-section h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--black);
+            margin: 0 0 2px 0;
+            line-height: 1.2;
+        }
+
+        .header-section p {
+            font-size: 12px;
+            color: var(--gray-600);
+            margin: 0;
+            line-height: 1.2;
         }
 
         .search-section {
+            flex: 1;
             margin-bottom: 0;
         }
 
@@ -91,6 +114,52 @@
             gap: 8px;
             flex-wrap: wrap;
             align-items: center;
+            justify-content: space-between;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .stats-section {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+
+        .stats-section .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4px 8px;
+            background: var(--gray-50);
+            border-radius: 4px;
+            min-width: 60px;
+        }
+
+        .stats-section .stat-number {
+            font-weight: 600;
+            color: var(--black);
+            font-size: 14px;
+        }
+
+        .stats-section .stat-label {
+            font-size: 10px;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .search-timing {
+            font-size: 11px;
+            color: var(--gray-500);
+            margin-left: 8px;
+            font-style: italic;
         }
 
         .filter-label {
@@ -625,6 +694,11 @@
             
             .top-bar {
                 padding: 16px 40px;
+                gap: 30px;
+            }
+            
+            .header-section h1 {
+                font-size: 1.3rem;
             }
             
             .content {
@@ -647,6 +721,17 @@
             
             .top-bar {
                 padding: 12px 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .header-section {
+                align-self: flex-start;
+            }
+            
+            .search-section {
+                width: 100%;
             }
             
             .content {
@@ -661,12 +746,22 @@
                 flex-wrap: wrap;
             }
         }
+
+        .directory-info p {
+            color: var(--gray-600);
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Top search bar -->
         <div class="top-bar">
+            <div class="header-section">
+                <h1>Ebook Search</h1>
+                <p>Digital Library Manager</p>
+            </div>
+
             <div class="search-section">
                 <form class="search-form" onsubmit="searchBooks(event)">
                     <input type="text" id="search-query" class="search-input" 
@@ -675,18 +770,24 @@
                 </form>
                 
                 <div class="file-type-filters">
-                    <span class="filter-label">Filter by type:</span>
-                    <div id="file-type-buttons">
-                        <!-- File type buttons will be loaded here -->
+                    <div class="filter-section">
+                        <span class="filter-label">Filter by type:</span>
+                        <div id="file-type-buttons">
+                            <!-- File type buttons will be loaded here -->
+                        </div>
+                        <div class="results-per-page">
+                            <label for="results-per-page-select" class="filter-label">Per page:</label>
+                            <select id="results-per-page-select" class="results-per-page-select" onchange="changeResultsPerPage(this.value)">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="results-per-page">
-                        <label for="results-per-page-select" class="filter-label">Per page:</label>
-                        <select id="results-per-page-select" class="results-per-page-select" onchange="changeResultsPerPage(this.value)">
-                            <option value="10">10</option>
-                            <option value="25" selected>25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
+                    
+                    <div class="stats-section" id="inline-stats" style="display: none;">
+                        <!-- Inline stats will be displayed here -->
                     </div>
                 </div>
                 
@@ -697,11 +798,6 @@
         <div class="main-content">
             <!-- Sidebar -->
             <div class="sidebar">
-                <div class="sidebar-header">
-                    <h1>Ebook Search</h1>
-                    <p>Digital Library Manager</p>
-                </div>
-
                 <div class="catalog-info">
                     <h4>Catalog Status</h4>
                     <div id="catalog-status">
@@ -738,10 +834,6 @@
 
             <!-- Main Content -->
             <div class="content">
-                <div id="stats" class="stats" style="display: none;">
-                    <!-- Stats will be displayed here -->
-                </div>
-
                 <div id="messages"></div>
                 <div id="results" class="results"></div>
             </div>
@@ -863,13 +955,16 @@
             
             const query = document.getElementById('search-query').value;
             const resultsDiv = document.getElementById('results');
-            const statsDiv = document.getElementById('stats');
+            const inlineStatsDiv = document.getElementById('inline-stats');
             const searchStatus = document.getElementById('search-status');
             
+            console.log('Starting search with query:', query);
             searchStatus.textContent = 'Searching your ebook library...';
+            const searchStartTime = performance.now();
             
             // Show loading
             resultsDiv.innerHTML = `<div class="loading">Searching through your ebook collection...</div>`;
+            inlineStatsDiv.style.display = 'none';
             
             try {
                 const formData = new FormData();
@@ -877,17 +972,26 @@
                 formData.append('similarity_threshold', currentThreshold);
                 // Don't send file_types - we'll filter on the client side
                 
+                console.log('Sending request to /search');
                 const response = await fetch('/search', {
                     method: 'POST',
                     body: formData
                 });
                 
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
                 const data = await response.json();
+                console.log('Response data:', data);
+                
+                const clientSearchTime = Math.round(performance.now() - searchStartTime);
                 
                 if (data.success) {
+                    console.log('Search successful, results count:', data.results.length);
                     // Store all results globally for filtering
                     window.allResults = data.results;
                     window.allStats = data.stats;
+                    window.serverSearchTime = data.search_time_ms || 0;
                     
                     // Reset active filters when new search is performed
                     activeFileTypes.clear();
@@ -898,20 +1002,24 @@
                     // Apply current filters and display (will show all since filters are cleared)
                     applyFileTypeFilters();
                     
-                    searchStatus.textContent = `Found ${data.results.length} results`;
+                    const timingText = `Found ${data.results.length} results <span class="search-timing">(${window.serverSearchTime}ms server, ${clientSearchTime}ms total)</span>`;
+                    searchStatus.innerHTML = timingText;
                 } else {
+                    console.log('Search failed with message:', data.message);
                     showMessage(data.message, 'error');
                     resultsDiv.innerHTML = '';
-                    statsDiv.style.display = 'none';
+                    inlineStatsDiv.style.display = 'none';
                     searchStatus.textContent = '';
                     // Clear file type buttons when no results
                     document.getElementById('file-type-buttons').innerHTML = '';
                 }
             } catch (error) {
+                console.error('Search error:', error);
+                const clientSearchTime = Math.round(performance.now() - searchStartTime);
                 showMessage('Search failed', 'error');
                 resultsDiv.innerHTML = '';
-                statsDiv.style.display = 'none';
-                searchStatus.textContent = '';
+                inlineStatsDiv.style.display = 'none';
+                searchStatus.innerHTML = `Search failed <span class="search-timing">(${clientSearchTime}ms)</span>`;
                 // Clear file type buttons on error
                 document.getElementById('file-type-buttons').innerHTML = '';
             }
@@ -937,6 +1045,9 @@
             const filteredStats = { ...window.allStats };
             filteredStats.results_count = filteredResults.length;
             
+            // Display inline stats
+            displayInlineStats(filteredStats);
+            
             // Display paginated filtered results
             displayPaginatedResults(filteredResults, filteredStats);
             
@@ -944,40 +1055,24 @@
             updateSearchStatus();
         }
 
-        // Update search status text
-        function updateSearchStatus() {
-            const searchStatus = document.getElementById('search-status');
-            const totalResults = window.allResults.length;
-            const filteredCount = filteredResults.length;
+        // Display inline stats in the filter row
+        function displayInlineStats(stats) {
+            const inlineStatsDiv = document.getElementById('inline-stats');
             
-            if (activeFileTypes.size > 0) {
-                const typeFilter = Array.from(activeFileTypes).map(ext => ext.toUpperCase().replace('.', '')).join(', ');
-                searchStatus.textContent = `Showing ${filteredCount} of ${totalResults} results (${typeFilter} only)`;
-            } else {
-                searchStatus.textContent = `Found ${totalResults} results`;
-            }
-        }
-
-        // Display paginated results
-        function displayPaginatedResults(results, stats) {
-            const resultsDiv = document.getElementById('results');
-            const statsDiv = document.getElementById('stats');
-            
-            // Display stats
             if (stats.file_types && typeof stats.file_types === 'object') {
                 const fileTypeCount = Object.keys(stats.file_types).length;
-                statsDiv.innerHTML = `
+                inlineStatsDiv.innerHTML = `
                     <div class="stat-item">
                         <span class="stat-number">${stats.total_books || 0}</span>
-                        <div class="stat-label">Total Books</div>
+                        <div class="stat-label">Books</div>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">${stats.total_size_gb || '0.0'} GB</span>
-                        <div class="stat-label">Total Size</div>
+                        <span class="stat-number">${stats.total_size_gb || '0.0'}</span>
+                        <div class="stat-label">GB</div>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">${fileTypeCount}</span>
-                        <div class="stat-label">File Types</div>
+                        <div class="stat-label">Types</div>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">${stats.results_count || 0}</span>
@@ -986,18 +1081,18 @@
                 `;
             } else {
                 // Fallback for old stats format
-                statsDiv.innerHTML = `
+                inlineStatsDiv.innerHTML = `
                     <div class="stat-item">
                         <span class="stat-number">${stats.total_books || 0}</span>
-                        <div class="stat-label">Total Books</div>
+                        <div class="stat-label">Books</div>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">${stats.total_size_mb || 0} MB</span>
-                        <div class="stat-label">Total Size</div>
+                        <span class="stat-number">${Math.round((stats.total_size_mb || 0) / 1024 * 100) / 100}</span>
+                        <div class="stat-label">GB</div>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">${stats.file_types || 0}</span>
-                        <div class="stat-label">File Types</div>
+                        <div class="stat-label">Types</div>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">${stats.results_count || 0}</span>
@@ -1005,7 +1100,27 @@
                     </div>
                 `;
             }
-            statsDiv.style.display = 'grid';
+            inlineStatsDiv.style.display = 'flex';
+        }
+
+        // Update search status text
+        function updateSearchStatus() {
+            const searchStatus = document.getElementById('search-status');
+            const totalResults = window.allResults.length;
+            const filteredCount = filteredResults.length;
+            const timingText = window.serverSearchTime ? `<span class="search-timing">(${window.serverSearchTime}ms server)</span>` : '';
+            
+            if (activeFileTypes.size > 0) {
+                const typeFilter = Array.from(activeFileTypes).map(ext => ext.toUpperCase().replace('.', '')).join(', ');
+                searchStatus.innerHTML = `Showing ${filteredCount} of ${totalResults} results (${typeFilter} only) ${timingText}`;
+            } else {
+                searchStatus.innerHTML = `Found ${totalResults} results ${timingText}`;
+            }
+        }
+
+        // Display paginated results (simplified - no longer needs to handle stats)
+        function displayPaginatedResults(results, stats) {
+            const resultsDiv = document.getElementById('results');
             
             // Handle empty results
             if (results.length === 0) {
@@ -1051,48 +1166,50 @@
             resultsDiv.innerHTML = paginationHtml + '<div class="results-list">' + resultsHtml + '</div>' + (totalPages > 1 ? paginationHtml : '');
         }
 
-        // Generate page numbers for pagination
-        function generatePageNumbers(currentPage, totalPages) {
-            let pages = '';
-            const maxVisiblePages = 5;
-            
-            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-            
-            // Adjust start if we're near the end
-            if (endPage - startPage < maxVisiblePages - 1) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-            
-            // Add first page if not visible
-            if (startPage > 1) {
-                pages += `<button class="btn-pagination" onclick="changePage(1)">1</button>`;
-                if (startPage > 2) {
-                    pages += '<span class="pagination-ellipsis">...</span>';
-                }
-            }
-            
-            // Add page numbers
-            for (let i = startPage; i <= endPage; i++) {
-                pages += `<button class="btn-pagination ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
-            }
-            
-            // Add last page if not visible
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) {
-                    pages += '<span class="pagination-ellipsis">...</span>';
-                }
-                pages += `<button class="btn-pagination" onclick="changePage(${totalPages})">${totalPages}</button>`;
-            }
-            
-            return pages;
-        }
-
         // Change page
         function changePage(page) {
             if (page < 1 || page > Math.ceil(filteredResults.length / resultsPerPage)) return;
             currentPage = page;
             displayPaginatedResults(filteredResults, window.allStats);
+        }
+
+        // Generate page numbers for pagination
+        function generatePageNumbers(currentPage, totalPages) {
+            let html = '';
+            const maxVisiblePages = 5;
+            
+            if (totalPages <= maxVisiblePages) {
+                // Show all pages if total is small
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<button class="btn-pagination ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                }
+            } else {
+                // Show first page
+                html += `<button class="btn-pagination ${1 === currentPage ? 'active' : ''}" onclick="changePage(1)">1</button>`;
+                
+                // Show ellipsis if needed
+                if (currentPage > 3) {
+                    html += '<span class="pagination-ellipsis">...</span>';
+                }
+                
+                // Show pages around current page
+                const start = Math.max(2, currentPage - 1);
+                const end = Math.min(totalPages - 1, currentPage + 1);
+                
+                for (let i = start; i <= end; i++) {
+                    html += `<button class="btn-pagination ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                }
+                
+                // Show ellipsis if needed
+                if (currentPage < totalPages - 2) {
+                    html += '<span class="pagination-ellipsis">...</span>';
+                }
+                
+                // Show last page
+                html += `<button class="btn-pagination ${totalPages === currentPage ? 'active' : ''}" onclick="changePage(${totalPages})">${totalPages}</button>`;
+            }
+            
+            return html;
         }
 
         // Display results (updated to use pagination)

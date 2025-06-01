@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
+import time
 from pathlib import Path
 from typing import List, Optional
 from ebook_search import EbookSearcher
@@ -45,15 +46,18 @@ async def search_books(
     similarity_threshold: int = Form(60)
 ):
     """Search for ebooks using catalog"""
+    search_start_time = time.time()
+    
     try:
-        # Get all books from catalog
-        all_books = searcher.get_catalog_books()
+        # Get all books from catalog (force_refresh=False to use existing catalog)
+        all_books = searcher.get_catalog_books(force_refresh=False)
         
         if not all_books:
             return JSONResponse({
                 "success": False,
                 "message": "No ebook files found in catalog. Try refreshing the catalog.",
-                "results": []
+                "results": [],
+                "search_time_ms": 0
             })
         
         # Search for matching books (no file type filtering here - done on client)
@@ -74,21 +78,28 @@ async def search_books(
                 "score": score
             })
         
+        # Calculate search time
+        search_time_ms = round((time.time() - search_start_time) * 1000, 1)
+        
         # Get current stats
         stats = searcher.get_catalog_stats()
         stats["results_count"] = len(formatted_results)
+        stats["search_time_ms"] = search_time_ms
         
         return JSONResponse({
             "success": True,
             "results": formatted_results,
-            "stats": stats
+            "stats": stats,
+            "search_time_ms": search_time_ms
         })
         
     except Exception as e:
+        search_time_ms = round((time.time() - search_start_time) * 1000, 1)
         return JSONResponse({
             "success": False,
             "message": f"Search error: {str(e)}",
-            "results": []
+            "results": [],
+            "search_time_ms": search_time_ms
         })
 
 @app.post("/catalog/build")
