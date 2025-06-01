@@ -704,37 +704,206 @@
         }
 
         .copy-path-btn {
+            padding: 6px 8px;
             background: var(--gray-100);
-            border: 1px solid var(--gray-300);
+            border: 1px solid var(--gray-200);
             border-radius: 4px;
-            padding: 4px 6px;
             font-size: 12px;
-            font-weight: 600;
-            color: var(--gray-600);
+            font-weight: 500;
+            color: var(--gray-700);
             cursor: pointer;
             transition: all 0.2s ease;
-            flex-shrink: 0;
-            line-height: 1;
-            min-width: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            white-space: nowrap;
         }
 
         .copy-path-btn:hover {
             background: var(--gray-200);
-            border-color: var(--gray-400);
-            color: var(--gray-800);
-        }
-
-        .copy-path-btn:active {
-            background: var(--gray-300);
+            border-color: var(--gray-300);
         }
 
         .copy-path-btn.copied {
+            background: var(--gray-800);
+            color: var(--white);
+            border-color: var(--gray-800);
+        }
+
+        .kindle-btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #232F3E, #131A22);
+            border: 1px solid #232F3E;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .kindle-btn:hover {
+            background: linear-gradient(135deg, #374151, #232F3E);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .kindle-btn:active {
+            transform: translateY(0);
+        }
+
+        .kindle-btn:disabled {
+            background: var(--gray-300);
+            color: var(--gray-500);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            border-color: var(--gray-300);
+        }
+
+        .kindle-btn.sending {
+            background: linear-gradient(135deg, #059669, #047857);
+            border-color: #059669;
+        }
+
+        .kindle-btn.sent {
+            background: linear-gradient(135deg, #059669, #047857);
+            border-color: #059669;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .kindle-settings {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .kindle-settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .kindle-settings-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 0;
+        }
+
+        .kindle-settings-toggle {
+            background: none;
+            border: none;
+            font-size: 12px;
+            color: var(--gray-600);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .kindle-settings-toggle:hover {
+            background: var(--gray-200);
+        }
+
+        .kindle-settings-content {
+            display: none;
+        }
+
+        .kindle-settings-content.show {
+            display: block;
+        }
+
+        .kindle-form {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .kindle-form-group {
+            flex: 1;
+        }
+
+        .kindle-form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 4px;
+        }
+
+        .kindle-form-input {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--gray-800);
+            transition: all 0.2s ease;
+        }
+
+        .kindle-form-input:focus {
+            outline: none;
+            border-color: var(--black);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .kindle-info {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--white);
+            border-radius: 4px;
+            border: 1px solid var(--gray-200);
+            font-size: 12px;
+        }
+
+        .kindle-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .kindle-info-label {
+            font-weight: 500;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kindle-info-value {
+            color: var(--gray-800);
+        }
+
+        .kindle-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kindle-status.configured {
             background: #dcfce7;
-            border-color: #bbf7d0;
             color: #166534;
+        }
+
+        .kindle-status.not-configured {
+            background: #fef2f2;
+            color: #991b1b;
         }
 
         .pagination-container {
@@ -984,6 +1153,37 @@
                     </div>
                 </div>
 
+                <!-- Kindle Settings Section -->
+                <div class="kindle-settings">
+                    <div class="kindle-settings-header">
+                        <h4 class="kindle-settings-title">📱 Kindle Email</h4>
+                        <button class="kindle-settings-toggle" onclick="toggleKindleSettings()">Show</button>
+                    </div>
+                    <div class="kindle-settings-content" id="kindle-settings-content">
+                        <div class="kindle-info" id="kindle-info">
+                            <div class="kindle-info-item">
+                                <span class="kindle-info-label">Gmail</span>
+                                <span class="kindle-info-value">mysterious.18.vishnu@gmail.com</span>
+                            </div>
+                            <div class="kindle-info-item">
+                                <span class="kindle-info-label">Kindle</span>
+                                <span class="kindle-info-value">mysterious.18.vishnu4@kindle.com</span>
+                            </div>
+                            <div class="kindle-info-item">
+                                <span class="kindle-info-label">Status</span>
+                                <span class="kindle-status not-configured" id="kindle-status">Not Configured</span>
+                            </div>
+                        </div>
+                        <div class="kindle-form">
+                            <div class="kindle-form-group">
+                                <label class="kindle-form-label" for="gmail-password">Gmail App Password</label>
+                                <input type="password" id="gmail-password" class="kindle-form-input" placeholder="Enter 16-character app password">
+                            </div>
+                            <button class="btn btn-secondary btn-small" onclick="setGmailPassword()">Save</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="directory-section">
                     <h3>Search directories</h3>
                     
@@ -1022,7 +1222,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadDirectories();
             loadCatalogInfo();
-            // Don't load file types on startup - they'll be built from search results
+            loadKindleInfo();
         });
 
         // Load catalog information
@@ -1322,6 +1522,7 @@
                 if (books.length === 1) {
                     // Single file - display as individual item
                     const book = books[0];
+                    const kindleSupported = isKindleSupported(book.extension);
                     return `
                         <div class="result-item">
                             <div class="result-header">
@@ -1333,7 +1534,10 @@
                             </div>
                             <div class="result-path">
                                 <span class="result-path-text">${escapeHtml(book.full_path)}</span>
-                                <button class="copy-path-btn" id="copy-btn-single-${globalGroupIndex}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-single-${globalGroupIndex}')">⧉</button>
+                                <div class="result-actions">
+                                    <button class="copy-path-btn" id="copy-btn-single-${globalGroupIndex}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-single-${globalGroupIndex}')">⧉</button>
+                                    ${kindleSupported ? `<button class="kindle-btn" id="kindle-btn-single-${globalGroupIndex}" onclick="sendToKindle('${escapeHtml(book.full_path)}', 'kindle-btn-single-${globalGroupIndex}')">📱 Send to Kindle</button>` : ''}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1342,18 +1546,23 @@
                     const totalSize = books.reduce((sum, book) => sum + (book.size_mb || 0), 0);
                     const extensions = [...new Set(books.map(book => book.extension.replace('.', '').toUpperCase()))];
                     
-                    const subItemsHtml = books.map((book, subIndex) => `
+                    const subItemsHtml = books.map((book, subIndex) => {
+                        const kindleSupported = isKindleSupported(book.extension);
+                        return `
                         <div class="result-subitem">
                             <div class="result-subitem-path">
                                 <span class="result-path-text">${escapeHtml(book.full_path)}</span>
-                                <button class="copy-path-btn" id="copy-btn-group-${globalGroupIndex}-${subIndex}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-group-${globalGroupIndex}-${subIndex}')">⧉</button>
+                                <div class="result-actions">
+                                    <button class="copy-path-btn" id="copy-btn-group-${globalGroupIndex}-${subIndex}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-group-${globalGroupIndex}-${subIndex}')">⧉</button>
+                                    ${kindleSupported ? `<button class="kindle-btn" id="kindle-btn-group-${globalGroupIndex}-${subIndex}" onclick="sendToKindle('${escapeHtml(book.full_path)}', 'kindle-btn-group-${globalGroupIndex}-${subIndex}')">📱 Send to Kindle</button>` : ''}
+                                </div>
                             </div>
                             <div class="result-subitem-meta">
                                 <span class="result-subitem-size">${book.size_mb} MB</span>
                                 <span class="result-subitem-type">${book.extension.replace('.', '').toUpperCase()}</span>
                             </div>
                         </div>
-                    `).join('');
+                    `;}).join('');
                     
                     return `
                         <div class="result-group">
@@ -1737,6 +1946,134 @@
                 toggle.textContent = '▶';
             });
             headers.forEach(header => header.classList.add('collapsed'));
+        }
+
+        // Check if a file extension is supported by Kindle
+        function isKindleSupported(extension) {
+            const supportedExtensions = ['.pdf', '.mobi', '.azw', '.azw3', '.epub', '.txt', '.doc', '.docx'];
+            return supportedExtensions.includes(extension.toLowerCase());
+        }
+
+        // Send a file to Kindle
+        async function sendToKindle(path, buttonId) {
+            try {
+                const button = document.getElementById(buttonId);
+                const originalText = button.innerHTML;
+                
+                // Update button state
+                button.disabled = true;
+                button.classList.add('sending');
+                button.innerHTML = '📱 Sending...';
+                
+                const formData = new FormData();
+                formData.append('file_path', path);
+                
+                const response = await fetch('/kindle/send', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    button.classList.remove('sending');
+                    button.classList.add('sent');
+                    button.innerHTML = '✓ Sent';
+                    
+                    // Keep the sent state for a few seconds, then hide the button
+                    setTimeout(() => {
+                        button.style.display = 'none';
+                    }, 3000);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Failed to send to Kindle:', error);
+                showMessage(`Failed to send to Kindle: ${error.message}`, 'error');
+                
+                // Reset button state
+                const button = document.getElementById(buttonId);
+                button.disabled = false;
+                button.classList.remove('sending');
+                button.innerHTML = '📱 Send to Kindle';
+            }
+        }
+
+        // Toggle Kindle settings visibility
+        function toggleKindleSettings() {
+            const content = document.getElementById('kindle-settings-content');
+            const toggle = document.querySelector('.kindle-settings-toggle');
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                toggle.textContent = 'Show';
+            } else {
+                content.classList.add('show');
+                toggle.textContent = 'Hide';
+                loadKindleInfo(); // Load info when showing
+            }
+        }
+
+        // Set Gmail app password
+        async function setGmailPassword() {
+            try {
+                const passwordInput = document.getElementById('gmail-password');
+                const password = passwordInput.value.trim();
+                
+                if (!password) {
+                    showMessage('Please enter a Gmail app password', 'error');
+                    return;
+                }
+                
+                if (password.length !== 16) {
+                    showMessage('Gmail app password should be 16 characters long', 'error');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('app_password', password);
+                
+                const response = await fetch('/kindle/set-password', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Gmail app password saved successfully', 'success');
+                    passwordInput.value = '';
+                    loadKindleInfo(); // Refresh the status
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Failed to set Gmail password:', error);
+                showMessage(`Failed to save password: ${error.message}`, 'error');
+            }
+        }
+
+        // Load Kindle configuration info
+        async function loadKindleInfo() {
+            try {
+                const response = await fetch('/kindle/info');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const statusElement = document.getElementById('kindle-status');
+                    
+                    if (data.info.app_password_configured) {
+                        statusElement.textContent = 'Configured';
+                        statusElement.className = 'kindle-status configured';
+                    } else {
+                        statusElement.textContent = 'Not Configured';
+                        statusElement.className = 'kindle-status not-configured';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load Kindle info:', error);
+            }
         }
     </script>
 </body>

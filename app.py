@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import List, Optional
 from ebook_search import EbookSearcher
+from kindle_email import kindle_sender
 import json
 
 app = FastAPI(title="Ebook Search System", description="A lightweight ebook search system")
@@ -248,6 +249,87 @@ async def clear_directories():
         "message": "All directories cleared",
         "directories": []
     })
+
+# Kindle Email Endpoints
+@app.post("/kindle/send")
+async def send_to_kindle(
+    file_path: str = Form(...),
+    custom_subject: str = Form(None)
+):
+    """Send a book file to Kindle via email"""
+    try:
+        result = kindle_sender.send_book_to_kindle(file_path, custom_subject)
+        
+        if result['success']:
+            return JSONResponse({
+                "success": True,
+                "message": result['message'],
+                "file_path": result['file_path']
+            })
+        else:
+            return JSONResponse({
+                "success": False,
+                "message": result['message'],
+                "file_path": result['file_path']
+            }, status_code=400)
+            
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Unexpected error: {str(e)}",
+            "file_path": file_path
+        }, status_code=500)
+
+@app.post("/kindle/validate")
+async def validate_for_kindle(file_path: str = Form(...)):
+    """Validate if a file can be sent to Kindle"""
+    try:
+        validation = kindle_sender.validate_file_for_kindle(file_path)
+        
+        return JSONResponse({
+            "success": True,
+            "validation": validation
+        })
+        
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Validation error: {str(e)}"
+        }, status_code=500)
+
+@app.get("/kindle/info")
+async def get_kindle_info():
+    """Get Kindle email configuration information"""
+    try:
+        info = kindle_sender.get_kindle_info()
+        
+        return JSONResponse({
+            "success": True,
+            "info": info
+        })
+        
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Failed to get Kindle info: {str(e)}"
+        }, status_code=500)
+
+@app.post("/kindle/set-password")
+async def set_gmail_password(app_password: str = Form(...)):
+    """Set Gmail app password for authentication"""
+    try:
+        kindle_sender.set_gmail_app_password(app_password)
+        
+        return JSONResponse({
+            "success": True,
+            "message": "Gmail app password set successfully"
+        })
+        
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Failed to set password: {str(e)}"
+        }, status_code=500)
 
 @app.get("/healthz")
 async def health_check():
