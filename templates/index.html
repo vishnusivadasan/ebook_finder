@@ -583,6 +583,45 @@
             font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
             word-break: break-all;
             line-height: 1.3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-path-text {
+            flex: 1;
+        }
+
+        .copy-path-btn {
+            background: var(--gray-100);
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .copy-path-btn:hover {
+            background: var(--gray-200);
+            border-color: var(--gray-400);
+            color: var(--gray-800);
+        }
+
+        .copy-path-btn:active {
+            background: var(--gray-300);
+        }
+
+        .copy-path-btn.copied {
+            background: #dcfce7;
+            border-color: #bbf7d0;
+            color: #166534;
         }
 
         .pagination-container {
@@ -657,6 +696,12 @@
             background: #f0f9ff;
             color: #0c4a6e;
             border: 1px solid #bae6fd;
+        }
+
+        .message.info {
+            background: #f8fafc;
+            color: #475569;
+            border: 1px solid #e2e8f0;
         }
 
         .message.error {
@@ -1149,7 +1194,7 @@
             ` : '';
             
             // Display current page results
-            const resultsHtml = currentResults.map(book => `
+            const resultsHtml = currentResults.map((book, index) => `
                 <div class="result-item">
                     <div class="result-header">
                         <h3 class="result-title">${escapeHtml(book.filename)}</h3>
@@ -1159,7 +1204,10 @@
                             <span class="result-type">${book.extension.replace('.', '').toUpperCase()}</span>
                         </div>
                     </div>
-                    <div class="result-path">${escapeHtml(book.directory)}</div>
+                    <div class="result-path">
+                        <span class="result-path-text">${escapeHtml(book.full_path)}</span>
+                        <button class="copy-path-btn" id="copy-btn-${index}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-${index}')">Copy</button>
+                    </div>
                 </div>
             `).join('');
             
@@ -1401,6 +1449,42 @@
             resultsPerPage = parseInt(value);
             currentPage = 1; // Reset to first page when changing results per page
             displayPaginatedResults(filteredResults, window.allStats);
+        }
+
+        // Copy path to clipboard
+        async function copyPath(path, buttonId) {
+            try {
+                // Try modern Clipboard API first
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(path);
+                } else {
+                    // Fallback for older browsers or non-HTTPS
+                    const tempInput = document.createElement('input');
+                    tempInput.value = path;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                }
+                
+                // Find the button that was clicked and give visual feedback
+                const buttons = document.querySelectorAll('.copy-path-btn');
+                buttons.forEach(btn => {
+                    if (btn.id === buttonId) {
+                        btn.textContent = 'Copied!';
+                        btn.classList.add('copied');
+                        setTimeout(() => {
+                            btn.textContent = 'Copy';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    }
+                });
+                
+                showMessage('Path copied to clipboard', 'info');
+            } catch (error) {
+                console.error('Failed to copy path:', error);
+                showMessage('Failed to copy path', 'error');
+            }
         }
     </script>
 </body>
