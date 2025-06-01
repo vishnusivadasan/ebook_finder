@@ -471,6 +471,160 @@
             gap: 8px;
         }
 
+        .result-item:hover {
+            border-color: var(--gray-400);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Grouped result styles */
+        .result-group {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .result-group:hover {
+            border-color: var(--gray-400);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .result-group-header {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-200);
+            transition: background-color 0.2s ease;
+        }
+
+        .result-group-header:hover {
+            background: var(--gray-50);
+        }
+
+        .result-group-header.collapsed {
+            border-bottom: none;
+        }
+
+        .result-group-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .result-group-filename {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--black);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .result-group-count {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .result-group-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-group-toggle {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--gray-500);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            line-height: 1;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-group-toggle:hover {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .result-group-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .result-group-content {
+            display: block;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .result-group-content.collapsed {
+            display: none;
+        }
+
+        .result-group-items {
+            padding: 0;
+        }
+
+        .result-subitem {
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--gray-100);
+            transition: background-color 0.2s ease;
+        }
+
+        .result-subitem:last-child {
+            border-bottom: none;
+        }
+
+        .result-subitem:hover {
+            background: var(--gray-50);
+        }
+
+        .result-subitem-path {
+            color: var(--gray-500);
+            font-size: 11px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            word-break: break-all;
+            line-height: 1.3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .result-subitem-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .result-subitem-size {
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .result-subitem-type {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
         .result-item {
             background: var(--white);
             border: 1px solid var(--gray-200);
@@ -762,6 +916,13 @@
 
         .sidebar-section h3 {
         }
+
+        .group-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-left: 16px;
+        }
     </style>
 </head>
 <body>
@@ -794,6 +955,10 @@
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                             </select>
+                        </div>
+                        <div class="group-controls" id="group-controls" style="display: none;">
+                            <button class="btn btn-secondary btn-small" onclick="expandAllGroups()">Expand All</button>
+                            <button class="btn btn-secondary btn-small" onclick="collapseAllGroups()">Collapse All</button>
                         </div>
                     </div>
                     
@@ -1123,17 +1288,24 @@
                 return;
             }
             
-            // Calculate pagination
-            const totalPages = Math.ceil(results.length / resultsPerPage);
+            // Group results by filename
+            const groupedResults = groupResultsByFilename(results);
+            
+            // Store grouped results globally for pagination
+            window.groupedResults = groupedResults;
+            
+            // Calculate pagination based on groups, not individual files
+            const groups = Object.entries(groupedResults);
+            const totalPages = Math.ceil(groups.length / resultsPerPage);
             const startIndex = (currentPage - 1) * resultsPerPage;
             const endIndex = startIndex + resultsPerPage;
-            const currentResults = results.slice(startIndex, endIndex);
+            const currentGroups = groups.slice(startIndex, endIndex);
             
             // Display pagination info and controls
             const paginationHtml = totalPages > 1 ? `
                 <div class="pagination-container">
                     <div class="pagination-info">
-                        Showing ${startIndex + 1}-${Math.min(endIndex, results.length)} of ${results.length} results
+                        Showing ${startIndex + 1}-${Math.min(endIndex, groups.length)} of ${groups.length} book titles (${results.length} total files)
                     </div>
                     <div class="pagination-controls">
                         <button class="btn-pagination" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Previous</button>
@@ -1143,29 +1315,125 @@
                 </div>
             ` : '';
             
-            // Display current page results
-            const resultsHtml = currentResults.map((book, index) => `
-                <div class="result-item">
-                    <div class="result-header">
-                        <h3 class="result-title">${escapeHtml(book.filename)}</h3>
-                        <div class="result-meta-top">
-                            <span class="result-size">${book.size_mb} MB</span>
-                            <span class="result-type">${book.extension.replace('.', '').toUpperCase()}</span>
+            // Display current page groups
+            const resultsHtml = currentGroups.map(([filename, books], groupIndex) => {
+                const globalGroupIndex = startIndex + groupIndex; // Unique index across all pages
+                
+                if (books.length === 1) {
+                    // Single file - display as individual item
+                    const book = books[0];
+                    return `
+                        <div class="result-item">
+                            <div class="result-header">
+                                <h3 class="result-title">${escapeHtml(book.filename)}</h3>
+                                <div class="result-meta-top">
+                                    <span class="result-size">${book.size_mb} MB</span>
+                                    <span class="result-type">${book.extension.replace('.', '').toUpperCase()}</span>
+                                </div>
+                            </div>
+                            <div class="result-path">
+                                <span class="result-path-text">${escapeHtml(book.full_path)}</span>
+                                <button class="copy-path-btn" id="copy-btn-single-${globalGroupIndex}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-single-${globalGroupIndex}')">⧉</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="result-path">
-                        <span class="result-path-text">${escapeHtml(book.full_path)}</span>
-                        <button class="copy-path-btn" id="copy-btn-${index}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-${index}')">⧉</button>
-                    </div>
-                </div>
-            `).join('');
+                    `;
+                } else {
+                    // Multiple files with same filename - display as collapsible group
+                    const totalSize = books.reduce((sum, book) => sum + (book.size_mb || 0), 0);
+                    const extensions = [...new Set(books.map(book => book.extension.replace('.', '').toUpperCase()))];
+                    
+                    const subItemsHtml = books.map((book, subIndex) => `
+                        <div class="result-subitem">
+                            <div class="result-subitem-path">
+                                <span class="result-path-text">${escapeHtml(book.full_path)}</span>
+                                <button class="copy-path-btn" id="copy-btn-group-${globalGroupIndex}-${subIndex}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-group-${globalGroupIndex}-${subIndex}')">⧉</button>
+                            </div>
+                            <div class="result-subitem-meta">
+                                <span class="result-subitem-size">${book.size_mb} MB</span>
+                                <span class="result-subitem-type">${book.extension.replace('.', '').toUpperCase()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    return `
+                        <div class="result-group">
+                            <div class="result-group-header" onclick="toggleGroup(${globalGroupIndex})">
+                                <div class="result-group-title">
+                                    <h3 class="result-group-filename">${escapeHtml(filename)}</h3>
+                                    <span class="result-group-count">${books.length} locations</span>
+                                </div>
+                                <div class="result-group-meta">
+                                    <span class="result-size">${totalSize.toFixed(1)} MB total</span>
+                                    <span class="result-type">${extensions.join(', ')}</span>
+                                    <button class="result-group-toggle" id="toggle-${globalGroupIndex}">▼</button>
+                                </div>
+                            </div>
+                            <div class="result-group-content" id="content-${globalGroupIndex}">
+                                <div class="result-group-items">
+                                    ${subItemsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
             
             resultsDiv.innerHTML = paginationHtml + '<div class="results-list">' + resultsHtml + '</div>' + (totalPages > 1 ? paginationHtml : '');
+            
+            // Update group controls visibility
+            updateGroupControls();
+        }
+        
+        // Group results by filename
+        function groupResultsByFilename(results) {
+            const groups = {};
+            
+            results.forEach(book => {
+                const filename = book.filename;
+                if (!groups[filename]) {
+                    groups[filename] = [];
+                }
+                groups[filename].push(book);
+            });
+            
+            // Sort each group by directory path for consistent ordering
+            Object.keys(groups).forEach(filename => {
+                groups[filename].sort((a, b) => a.full_path.localeCompare(b.full_path));
+            });
+            
+            return groups;
+        }
+        
+        // Toggle group expansion
+        function toggleGroup(groupIndex) {
+            const toggle = document.getElementById(`toggle-${groupIndex}`);
+            const content = document.getElementById(`content-${groupIndex}`);
+            const header = toggle.closest('.result-group-header');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                toggle.classList.remove('collapsed');
+                toggle.textContent = '▼';
+                header.classList.remove('collapsed');
+            } else {
+                content.classList.add('collapsed');
+                toggle.classList.add('collapsed');
+                toggle.textContent = '▶';
+                header.classList.add('collapsed');
+            }
         }
 
         // Change page
         function changePage(page) {
-            if (page < 1 || page > Math.ceil(filteredResults.length / resultsPerPage)) return;
+            if (!window.groupedResults) {
+                // If no grouped results available, fall back to regular pagination
+                if (page < 1 || page > Math.ceil(filteredResults.length / resultsPerPage)) return;
+            } else {
+                // Calculate based on groups
+                const groups = Object.entries(window.groupedResults);
+                if (page < 1 || page > Math.ceil(groups.length / resultsPerPage)) return;
+            }
+            
             currentPage = page;
             displayPaginatedResults(filteredResults, window.allStats);
         }
@@ -1434,6 +1702,41 @@
                 console.error('Failed to copy path:', error);
                 showMessage('Failed to copy path', 'error');
             }
+        }
+
+        // Show/hide group controls based on whether there are groups
+        function updateGroupControls() {
+            const groupControls = document.getElementById('group-controls');
+            const hasGroups = document.querySelectorAll('.result-group').length > 0;
+            groupControls.style.display = hasGroups ? 'flex' : 'none';
+        }
+
+        // Expand all groups
+        function expandAllGroups() {
+            const contents = document.querySelectorAll('.result-group-content');
+            const toggles = document.querySelectorAll('.result-group-toggle');
+            const headers = document.querySelectorAll('.result-group-header');
+            
+            contents.forEach(content => content.classList.remove('collapsed'));
+            toggles.forEach(toggle => {
+                toggle.classList.remove('collapsed');
+                toggle.textContent = '▼';
+            });
+            headers.forEach(header => header.classList.remove('collapsed'));
+        }
+
+        // Collapse all groups
+        function collapseAllGroups() {
+            const contents = document.querySelectorAll('.result-group-content');
+            const toggles = document.querySelectorAll('.result-group-toggle');
+            const headers = document.querySelectorAll('.result-group-header');
+            
+            contents.forEach(content => content.classList.add('collapsed'));
+            toggles.forEach(toggle => {
+                toggle.classList.add('collapsed');
+                toggle.textContent = '▶';
+            });
+            headers.forEach(header => header.classList.add('collapsed'));
         }
     </script>
 </body>
