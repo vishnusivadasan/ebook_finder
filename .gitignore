@@ -52,4 +52,7 @@ logs/
 .env.production.local
 
 # Development dummy directories
-dummy_books/ 
+dummy_books/
+
+# Ebook catalog (local file with machine-specific paths)
+ebook_catalog.json 
