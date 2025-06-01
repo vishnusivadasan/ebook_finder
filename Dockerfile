@@ -27,10 +27,10 @@ RUN pip install --no-cache-dir --no-compile --disable-pip-version-check \
 COPY app.py app.py
 COPY ebook_search.py .
 COPY templates/ templates/
+COPY static/ static/
 
 # Create mount points, static directory, and cache directory
 RUN mkdir -p /mnt/{ebooks,documents,downloads,books,desktop,calibre} \
-    && mkdir -p /app/static \
     && mkdir -p /tmp/app-cache
 
 # Create non-root user

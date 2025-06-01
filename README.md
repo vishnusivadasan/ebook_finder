@@ -236,6 +236,46 @@ volumes:
   - "/path/to/your/ebooks:/mnt/ebooks:ro"
 ```
 
+### Environment Variables for Cross-Platform Compatibility
+
+For Raspberry Pi or other specific setups, use environment variables to customize paths:
+
+**On Raspberry Pi, create a `.env` file:**
+```bash
+# Create .env file
+echo "PI_BOOKS_PATH=/home/pi/Elements/Books" > .env
+
+# Run normally
+docker compose up -d
+```
+
+**On other systems (Mac/Windows/Linux), leave the variable unset** - it will automatically use a local dummy directory.
+```bash
+# No .env file needed, just run
+docker compose up -d
+```
+
+**The docker-compose.yml uses:**
+```yaml
+- "${PI_BOOKS_PATH:-./dummy_books}:/mnt/books:ro"
+```
+
+This means:
+- If `PI_BOOKS_PATH` is set → uses that path
+- If not set → uses `./dummy_books` (safe fallback)
+
+**Example `.env` file for different systems:**
+```bash
+# Raspberry Pi
+PI_BOOKS_PATH=/home/pi/Elements/Books
+
+# Custom Linux setup
+PI_BOOKS_PATH=/media/usb/Books
+
+# Leave empty or unset for Mac/Windows development
+# PI_BOOKS_PATH=
+```
+
 ## Docker Management
 
 ### Useful Commands
