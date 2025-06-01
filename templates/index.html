@@ -981,7 +981,6 @@
                     </div>
                     <div class="catalog-actions">
                         <button class="btn btn-secondary btn-small" onclick="forceBuildCatalog()">Rebuild Catalog</button>
-                        <button class="btn btn-secondary btn-small" onclick="deduplicateCatalog()">Deduplicate</button>
                     </div>
                 </div>
 
@@ -1640,7 +1639,7 @@
         // Force rebuild catalog
         async function forceBuildCatalog() {
             try {
-                showMessage('Rebuilding catalog...', 'info');
+                showMessage('Rebuilding catalog (duplicates automatically removed)...', 'info');
                 const formData = new FormData();
                 formData.append('force_refresh', 'true');
                 
@@ -1659,32 +1658,6 @@
                 }
             } catch (error) {
                 showMessage('Failed to rebuild catalog', 'error');
-            }
-        }
-
-        // Deduplicate catalog
-        async function deduplicateCatalog() {
-            try {
-                showMessage('Removing duplicates from catalog...', 'info');
-                
-                const response = await fetch('/catalog/deduplicate', {
-                    method: 'POST'
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showMessage(data.message, 'success');
-                    loadCatalogInfo();
-                    // Refresh current search results if any
-                    if (window.allResults && window.allResults.length > 0) {
-                        applyFileTypeFilters();
-                    }
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Failed to deduplicate catalog', 'error');
             }
         }
 

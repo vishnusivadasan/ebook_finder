@@ -194,6 +194,9 @@ class EbookSearcher:
         # Find all ebook files
         all_books = self.find_ebook_files(search_directories)
         
+        # Ensure deduplication (additional safety check)
+        all_books = self._deduplicate_books(all_books)
+        
         # Build catalog structure
         catalog = {
             'metadata': {
@@ -214,7 +217,7 @@ class EbookSearcher:
         try:
             with open(self.catalog_file, 'w') as f:
                 json.dump(catalog, f, indent=2)
-            print(f"Catalog built successfully in {build_time:.2f}s with {len(all_books)} books")
+            print(f"Catalog built successfully in {build_time:.2f}s with {len(all_books)} unique books")
         except OSError as e:
             print(f"Warning: Could not save catalog to {self.catalog_file}: {e}")
         
@@ -255,14 +258,8 @@ class EbookSearcher:
         catalog = self.load_catalog()
         return catalog.get('metadata', {})
     
-    def deduplicate_catalog(self) -> Dict:
-        """Remove duplicate entries from the catalog based on full file path"""
-        catalog = self.load_catalog()
-        
-        if 'books' not in catalog:
-            return catalog
-            
-        books = catalog['books']
+    def _deduplicate_books(self, books: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        """Remove duplicate books based on full file path"""
         seen_paths = set()
         deduplicated_books = []
         
@@ -282,6 +279,18 @@ class EbookSearcher:
             book_copy['directory'] = os.path.dirname(normalized_path)
             
             deduplicated_books.append(book_copy)
+        
+        return deduplicated_books
+
+    def deduplicate_catalog(self) -> Dict:
+        """Remove duplicate entries from the catalog based on full file path"""
+        catalog = self.load_catalog()
+        
+        if 'books' not in catalog:
+            return catalog
+            
+        books = catalog['books']
+        deduplicated_books = self._deduplicate_books(books)
         
         # Update catalog with deduplicated books
         catalog['books'] = deduplicated_books
