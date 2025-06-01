@@ -47,7 +47,7 @@ This guide will help you set up the Kindle email functionality to send ebooks di
 
 The application is pre-configured with:
 - **Gmail**: `mysterious.18.vishnu@gmail.com`
-- **Kindle**: `mysterious.18.vishnu4@kindle.com`
+- **Kindle**: `auoasismit987@kindle.com`
 
 If you need to change these, you can modify them in the `kindle_email.py` file:
 

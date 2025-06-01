@@ -8,19 +8,21 @@ from email import encoders
 from pathlib import Path
 from typing import Optional
 import logging
+from conf import email_config
 
 logger = logging.getLogger(__name__)
 
 class KindleEmailSender:
     """Service for sending ebooks to Kindle via email"""
     
-    # Supported Kindle file formats
-    SUPPORTED_FORMATS = {'.pdf', '.mobi', '.epub', '.azw', '.azw3', '.txt', '.doc', '.docx'}
-    
-    def __init__(self, gmail_address: str = "mysterious.18.vishnu@gmail.com", 
-                 kindle_email: str = "mysterious.18.vishnu4@kindle.com"):
-        self.gmail_address = gmail_address
-        self.kindle_email = kindle_email
+    def __init__(self):
+        # Use configuration from conf.py
+        self.gmail_address = email_config.gmail_address
+        self.kindle_email = email_config.kindle_email
+        self.smtp_server = email_config.smtp_server
+        self.smtp_port = email_config.smtp_port
+        self.max_attachment_size_mb = email_config.max_attachment_size_mb
+        self.supported_formats = email_config.supported_formats
         self.gmail_app_password = None  # Will be set from environment or user input
     
     def set_gmail_app_password(self, app_password: str):
@@ -29,12 +31,12 @@ class KindleEmailSender:
     
     def get_gmail_app_password_from_env(self) -> Optional[str]:
         """Try to get Gmail app password from environment variable"""
-        return os.getenv('GMAIL_APP_PASSWORD')
+        return email_config.gmail_app_password
     
     def is_supported_format(self, file_path: str) -> bool:
         """Check if the file format is supported by Kindle"""
         file_extension = Path(file_path).suffix.lower()
-        return file_extension in self.SUPPORTED_FORMATS
+        return file_extension in self.supported_formats
     
     def get_file_size_mb(self, file_path: str) -> float:
         """Get file size in MB"""
@@ -58,15 +60,15 @@ class KindleEmailSender:
         
         if not self.is_supported_format(file_path):
             file_ext = Path(file_path).suffix.lower()
-            result['reason'] = f'Unsupported format: {file_ext}. Supported formats: {", ".join(self.SUPPORTED_FORMATS)}'
+            result['reason'] = f'Unsupported format: {file_ext}. Supported formats: {", ".join(self.supported_formats)}'
             return result
         
         file_size_mb = self.get_file_size_mb(file_path)
         result['file_size_mb'] = file_size_mb
         
-        # Kindle email has a 50MB limit for attachments
-        if file_size_mb > 50:
-            result['reason'] = f'File too large: {file_size_mb}MB. Kindle email limit is 50MB'
+        # Use configured size limit instead of hardcoded 50MB
+        if file_size_mb > self.max_attachment_size_mb:
+            result['reason'] = f'File too large: {file_size_mb}MB. Kindle email limit is {self.max_attachment_size_mb}MB'
             return result
         
         result['valid'] = True
@@ -129,8 +131,8 @@ Enjoy reading!
             )
             msg.attach(part)
             
-            # Send email using Gmail SMTP
-            server = smtplib.SMTP('smtp.gmail.com', 587)
+            # Send email using configured SMTP settings
+            server = smtplib.SMTP(self.smtp_server, self.smtp_port)
             server.starttls()  # Enable TLS encryption
             server.login(self.gmail_address, app_password)
             
@@ -154,8 +156,11 @@ Enjoy reading!
         return {
             'gmail_address': self.gmail_address,
             'kindle_email': self.kindle_email,
+            'smtp_server': self.smtp_server,
+            'smtp_port': self.smtp_port,
+            'max_attachment_size_mb': self.max_attachment_size_mb,
             'app_password_configured': bool(self.gmail_app_password or self.get_gmail_app_password_from_env()),
-            'supported_formats': list(self.SUPPORTED_FORMATS)
+            'supported_formats': list(self.supported_formats)
         }
 
 # Global instance

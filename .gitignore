@@ -56,3 +56,5 @@ dummy_books/
 
 # Ebook catalog (local file with machine-specific paths)
 ebook_catalog.json 
+test_kindle.py
+dummy_books/

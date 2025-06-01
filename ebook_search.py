@@ -109,18 +109,22 @@ class EbookSearcher:
         
         for book in ebook_files:
             filename_no_ext = os.path.splitext(book['filename'])[0].lower()
+            # Also include the extension (without the dot) for searching
+            file_extension = book['extension'].lower().replace('.', '')
+            # Combine filename and extension for comprehensive search
+            searchable_text = f"{filename_no_ext} {file_extension}"
             
             # Simple scoring based on word matches
             score = 0
             
             # Check for exact phrase match (highest score)
-            if query.lower() in filename_no_ext:
+            if query.lower() in searchable_text:
                 score = 100
             else:
                 # Count matching words
                 matching_words = 0
                 for term in query_terms:
-                    if term in filename_no_ext:
+                    if term in searchable_text:
                         matching_words += 1
                 
                 # Score based on percentage of words found
@@ -129,7 +133,7 @@ class EbookSearcher:
                     
                     # Bonus for word starts (e.g., "har" matches "harry")
                     for term in query_terms:
-                        if any(word.startswith(term) for word in filename_no_ext.split()):
+                        if any(word.startswith(term) for word in searchable_text.split()):
                             score += 5
                     
                     score = min(100, score)
