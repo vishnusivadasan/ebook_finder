@@ -128,6 +128,25 @@ async def build_catalog(force_refresh: bool = Form(False)):
             "message": f"Failed to build catalog: {str(e)}"
         })
 
+@app.post("/catalog/deduplicate")
+async def deduplicate_catalog_endpoint():
+    """Remove duplicate entries from the existing catalog"""
+    try:
+        catalog = searcher.deduplicate_catalog()
+        
+        return JSONResponse({
+            "success": True,
+            "message": f"Catalog deduplicated successfully, now contains {catalog['metadata']['total_books']} unique books",
+            "metadata": catalog['metadata'],
+            "stats": catalog['stats']
+        })
+        
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Failed to deduplicate catalog: {str(e)}"
+        })
+
 @app.get("/catalog/metadata")
 async def get_catalog_metadata():
     """Get catalog metadata"""

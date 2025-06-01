@@ -66,6 +66,7 @@ class EbookSearcher:
             search_directories = self.get_common_ebook_directories()
         
         ebook_files = []
+        seen_paths = set()  # Track seen file paths to avoid duplicates
         
         for directory in search_directories:
             try:
@@ -75,10 +76,19 @@ class EbookSearcher:
                     files = glob.glob(pattern, recursive=True)
                     
                     for file_path in files:
+                        # Normalize path to handle any path variations
+                        normalized_path = os.path.normpath(os.path.abspath(file_path))
+                        
+                        # Skip if we've already seen this file
+                        if normalized_path in seen_paths:
+                            continue
+                            
+                        seen_paths.add(normalized_path)
+                        
                         file_info = {
                             'filename': os.path.basename(file_path),
-                            'full_path': file_path,
-                            'directory': os.path.dirname(file_path),
+                            'full_path': normalized_path,
+                            'directory': os.path.dirname(normalized_path),
                             'extension': ext,
                             'size_mb': round(os.path.getsize(file_path) / (1024 * 1024), 2)
                         }
@@ -244,6 +254,49 @@ class EbookSearcher:
         """Get catalog metadata"""
         catalog = self.load_catalog()
         return catalog.get('metadata', {})
+    
+    def deduplicate_catalog(self) -> Dict:
+        """Remove duplicate entries from the catalog based on full file path"""
+        catalog = self.load_catalog()
+        
+        if 'books' not in catalog:
+            return catalog
+            
+        books = catalog['books']
+        seen_paths = set()
+        deduplicated_books = []
+        
+        for book in books:
+            # Normalize path to handle any path variations
+            normalized_path = os.path.normpath(os.path.abspath(book.get('full_path', '')))
+            
+            # Skip if we've already seen this file
+            if normalized_path in seen_paths:
+                continue
+                
+            seen_paths.add(normalized_path)
+            
+            # Update the book record with normalized path
+            book_copy = book.copy()
+            book_copy['full_path'] = normalized_path
+            book_copy['directory'] = os.path.dirname(normalized_path)
+            
+            deduplicated_books.append(book_copy)
+        
+        # Update catalog with deduplicated books
+        catalog['books'] = deduplicated_books
+        catalog['metadata']['total_books'] = len(deduplicated_books)
+        catalog['stats'] = self._calculate_stats(deduplicated_books)
+        
+        # Save the cleaned catalog
+        try:
+            with open(self.catalog_file, 'w') as f:
+                json.dump(catalog, f, indent=2)
+            print(f"Catalog deduplicated: {len(books)} → {len(deduplicated_books)} books")
+        except OSError as e:
+            print(f"Warning: Could not save deduplicated catalog: {e}")
+        
+        return catalog
     
     def _calculate_stats(self, books: List[Dict[str, str]]) -> Dict:
         """Calculate statistics for the book collection"""
