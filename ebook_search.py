@@ -9,7 +9,7 @@ import re
 
 class EbookSearcher:
     def __init__(self, catalog_file: str = "ebook_catalog.json"):
-        self.supported_formats = ['.pdf', '.epub', '.mobi', '.azw', '.azw3', '.djvu', '.fb2', '.txt']
+        self.supported_formats = ['.pdf', '.epub', '.mobi', '.azw', '.azw3', '.djvu', '.fb2']
         self.catalog_file = catalog_file
         self.catalog_max_age_days = 7  # Refresh catalog if older than 7 days
         self.daily_refresh_hour = 3    # Auto-refresh at 3 AM if container running

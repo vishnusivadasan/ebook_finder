@@ -553,16 +553,18 @@
             background: var(--gray-100);
             border: 1px solid var(--gray-300);
             border-radius: 4px;
-            padding: 3px 6px;
-            font-size: 9px;
+            padding: 4px 6px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--gray-600);
             cursor: pointer;
             transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             flex-shrink: 0;
             line-height: 1;
+            min-width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .copy-path-btn:hover {
@@ -1147,14 +1149,13 @@
                     <div class="result-header">
                         <h3 class="result-title">${escapeHtml(book.filename)}</h3>
                         <div class="result-meta-top">
-                            <span class="result-score">${book.score}%</span>
                             <span class="result-size">${book.size_mb} MB</span>
                             <span class="result-type">${book.extension.replace('.', '').toUpperCase()}</span>
                         </div>
                     </div>
                     <div class="result-path">
                         <span class="result-path-text">${escapeHtml(book.full_path)}</span>
-                        <button class="copy-path-btn" id="copy-btn-${index}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-${index}')">Copy</button>
+                        <button class="copy-path-btn" id="copy-btn-${index}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-${index}')">⧉</button>
                     </div>
                 </div>
             `).join('');
@@ -1419,12 +1420,12 @@
                 const buttons = document.querySelectorAll('.copy-path-btn');
                 buttons.forEach(btn => {
                     if (btn.id === buttonId) {
-                        btn.textContent = 'Copied!';
+                        btn.textContent = '✓';
                         btn.classList.add('copied');
                         setTimeout(() => {
-                            btn.textContent = 'Copy';
+                            btn.textContent = '⧉';
                             btn.classList.remove('copied');
-                        }, 2000);
+                        }, 1500);
                     }
                 });
                 
