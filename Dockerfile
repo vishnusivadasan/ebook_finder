@@ -1,20 +1,21 @@
 # Ultra-minimal FastAPI build
 FROM python:3.12-alpine
 
-# Install build dependencies and remove after
+# Install system dependencies including C++ compiler for python-Levenshtein
 RUN apk add --no-cache --virtual .build-deps \
     gcc \
+    g++ \
     musl-dev \
-    && apk add --no-cache libstdc++ \
-    && rm -rf /var/cache/apk/*
+    make \
+    cmake
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements
+# Copy requirements first for better caching
 COPY requirements.txt requirements.txt
 
-# Install Python dependencies with minimal footprint
+# Install Python dependencies
 RUN pip install --no-cache-dir --no-compile --disable-pip-version-check \
     -r requirements.txt \
     && apk del .build-deps \
@@ -27,7 +28,7 @@ COPY app.py app.py
 COPY ebook_search.py .
 COPY templates/ templates/
 
-# Create mount directories and app directories
+# Create mount points, static directory, and cache directory
 RUN mkdir -p /mnt/{ebooks,documents,downloads,books,desktop,calibre} \
     && mkdir -p /app/static \
     && mkdir -p /tmp/app-cache
@@ -35,15 +36,19 @@ RUN mkdir -p /mnt/{ebooks,documents,downloads,books,desktop,calibre} \
 # Create non-root user
 RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
 
-# Change ownership of app directory to app user
+# Change ownership
 RUN chown -R app:app /app /tmp/app-cache
 
-# Change to non-root user
+# Switch to non-root user
 USER app
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8501/healthz || exit 1
 
 # Expose port
 EXPOSE 8501

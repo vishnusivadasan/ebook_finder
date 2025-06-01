@@ -47,58 +47,21 @@
             flex-direction: column;
         }
 
-        .header {
-            padding: 40px 60px 30px;
-            text-align: center;
+        .top-bar {
+            padding: 20px 60px;
             border-bottom: 1px solid var(--gray-200);
             flex-shrink: 0;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-            margin-bottom: 8px;
-            color: var(--black);
-        }
-
-        .header p {
-            font-size: 1.125rem;
-            color: var(--gray-600);
-            font-weight: 400;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            flex: 1;
-            height: calc(100vh - 140px);
-            overflow: hidden;
-        }
-
-        .sidebar {
-            background: var(--gray-50);
-            padding: 40px 30px;
-            border-right: 1px solid var(--gray-200);
-            overflow-y: auto;
-            height: 100%;
-        }
-
-        .content {
-            padding: 40px 60px;
             background: var(--white);
-            overflow-y: auto;
-            height: 100%;
         }
 
         .search-section {
-            margin-bottom: 40px;
+            margin-bottom: 0;
         }
 
         .search-form {
             display: flex;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
         .search-input {
@@ -121,6 +84,146 @@
 
         .search-input::placeholder {
             color: var(--gray-400);
+        }
+
+        .file-type-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: var(--gray-600);
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .results-per-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 16px;
+        }
+
+        .results-per-page-select {
+            padding: 6px 8px;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .results-per-page-select:focus {
+            outline: none;
+            border-color: var(--black);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-per-page-select:hover {
+            border-color: var(--gray-400);
+        }
+
+        .file-type-button {
+            padding: 6px 12px;
+            background: var(--gray-100);
+            border: 1px solid var(--gray-300);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .file-type-button.active {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+
+        .file-type-button:hover {
+            background: var(--gray-200);
+            border-color: var(--gray-400);
+        }
+
+        .file-type-button.active:hover {
+            background: var(--gray-800);
+            border-color: var(--gray-800);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            flex: 1;
+            height: calc(100vh - 120px);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: var(--gray-50);
+            padding: 30px;
+            border-right: 1px solid var(--gray-200);
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .sidebar-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .catalog-info {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .catalog-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--black);
+        }
+
+        .catalog-info p {
+            font-size: 12px;
+            color: var(--gray-600);
+            margin-bottom: 4px;
+        }
+
+        .catalog-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .content {
+            padding: 30px 60px;
+            background: var(--white);
+            overflow-y: auto;
+            height: 100%;
         }
 
         .btn {
@@ -163,6 +266,11 @@
             border-color: var(--gray-400);
         }
 
+        .btn-small {
+            font-size: 11px;
+            padding: 6px 10px;
+        }
+
         .btn-danger {
             background: var(--white);
             color: var(--black);
@@ -199,7 +307,6 @@
         }
 
         .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
@@ -221,27 +328,25 @@
         }
 
         .directory-section h3 {
+            font-size: 16px;
+            font-weight: 600;
             margin-bottom: 16px;
             color: var(--black);
-            font-weight: 600;
-            font-size: 16px;
         }
 
         .directory-add {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .directory-add input {
             flex: 1;
             padding: 10px 12px;
-            background: var(--white);
             border: 1px solid var(--gray-300);
             border-radius: 6px;
-            color: var(--black);
-            font-family: inherit;
             font-size: 13px;
+            font-family: inherit;
         }
 
         .directory-add input:focus {
@@ -250,228 +355,281 @@
             box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
         }
 
-        .directory-list {
-            max-height: 400px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            border: 1px solid var(--gray-200);
-            border-radius: 8px;
-            background: var(--white);
-        }
-
-        .directory-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .directory-list::-webkit-scrollbar-track {
-            background: var(--gray-100);
-        }
-
-        .directory-list::-webkit-scrollbar-thumb {
-            background: var(--gray-400);
-            border-radius: 3px;
-        }
-
-        .directory-list::-webkit-scrollbar-thumb:hover {
-            background: var(--gray-500);
-        }
-
-        .directory-item {
-            background: var(--white);
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--gray-100);
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            font-size: 13px;
-            transition: background-color 0.2s ease;
-            min-height: 44px;
-        }
-
-        .directory-item:last-child {
-            border-bottom: none;
-        }
-
-        .directory-item:hover {
-            background: var(--gray-50);
-        }
-
-        .directory-item.invalid {
-            color: var(--gray-500);
-        }
-
-        .directory-item.invalid:hover {
-            background: var(--gray-50);
-        }
-
-        .directory-path {
-            flex: 1;
-            min-width: 0;
-            word-wrap: break-word;
-            word-break: break-all;
-            line-height: 1.4;
-            padding-right: 8px;
-        }
-
-        .directory-remove-btn {
-            flex-shrink: 0;
-            padding: 4px 8px;
-            font-size: 11px;
-            min-width: 60px;
-            align-self: flex-start;
-        }
-
         .directory-actions {
             display: flex;
             gap: 8px;
             margin-bottom: 16px;
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
+        .directory-list {
+            max-height: 300px;
+            overflow-y: auto;
         }
 
-        .stat-card {
-            background: var(--white);
-            padding: 24px;
-            border: 1px solid var(--gray-200);
-            border-radius: 12px;
-            text-align: center;
-            transition: all 0.2s ease;
-        }
-
-        .stat-card:hover {
-            border-color: var(--gray-300);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--black);
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            color: var(--gray-600);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .results {
-            margin-top: 24px;
-        }
-
-        .book-item {
-            background: var(--white);
-            padding: 24px;
-            margin: 16px 0;
-            border: 1px solid var(--gray-200);
-            border-radius: 12px;
+        .directory-item {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .book-item:hover {
-            border-color: var(--gray-300);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .book-info {
-            flex: 1;
-        }
-
-        .book-title {
-            font-weight: 600;
-            color: var(--black);
-            font-size: 16px;
-            margin-bottom: 6px;
-            line-height: 1.4;
-        }
-
-        .book-details {
-            color: var(--gray-600);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .match-score {
-            background: var(--black);
-            color: var(--white);
-            padding: 8px 12px;
+            padding: 12px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
             border-radius: 6px;
-            font-weight: 600;
+            margin-bottom: 8px;
             font-size: 13px;
-            margin-left: 16px;
         }
 
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--gray-600);
-            font-size: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+        .directory-item.invalid {
+            background: #fef2f2;
+            border-color: #fecaca;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--gray-200);
-            border-radius: 50%;
-            border-top-color: var(--black);
-            animation: spin 1s linear infinite;
+        .directory-path {
+            flex: 1;
+            word-break: break-all;
+            margin-right: 12px;
+            color: var(--gray-700);
         }
 
-        .search-form.searching .btn-primary {
-            opacity: 0.7;
-            cursor: not-allowed;
-            position: relative;
+        .directory-item.invalid .directory-path {
+            color: #dc2626;
         }
 
-        .search-form.searching .search-input {
-            background: var(--gray-50);
-            cursor: not-allowed;
-        }
-
-        @keyframes spin {
-            to {transform: rotate(360deg);}
+        .directory-remove-btn {
+            font-size: 11px;
+            padding: 4px 8px;
         }
 
         .search-status {
             font-size: 14px;
             color: var(--gray-600);
-            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .stats {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
             text-align: center;
-            min-height: 20px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--black);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--gray-600);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .results {
+            display: grid;
+            gap: 16px;
+        }
+
+        .results-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .result-item {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+        }
+
+        .result-item:hover {
+            border-color: var(--gray-400);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            gap: 12px;
+        }
+
+        .result-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--black);
+            margin: 0;
+            word-break: break-word;
+            flex: 1;
+            line-height: 1.3;
+        }
+
+        .result-meta-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .result-score {
+            background: var(--black);
+            color: var(--white);
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .result-size {
+            font-weight: 500;
+            color: var(--gray-600);
+            font-size: 11px;
+        }
+
+        .result-type {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .result-path {
+            color: var(--gray-500);
+            font-size: 11px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            word-break: break-all;
+            line-height: 1.3;
+        }
+
+        .pagination-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-top: 1px solid var(--gray-200);
+            margin-top: 16px;
+        }
+
+        .pagination-container:first-child {
+            border-top: none;
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: var(--gray-600);
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-pagination {
+            padding: 6px 12px;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: auto;
+        }
+
+        .btn-pagination:hover:not(:disabled) {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+
+        .btn-pagination.active {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+
+        .btn-pagination:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-ellipsis {
+            padding: 6px 8px;
+            color: var(--gray-400);
+            font-size: 12px;
         }
 
         .message {
-            padding: 16px 20px;
+            padding: 16px;
             border-radius: 8px;
-            margin: 16px 0;
+            margin-bottom: 20px;
             font-size: 14px;
-            font-weight: 500;
-        }
-
-        .message.error {
-            background: var(--gray-100);
-            color: var(--gray-700);
-            border: 1px solid var(--gray-200);
         }
 
         .message.success {
-            background: var(--gray-100);
-            color: var(--gray-700);
-            border: 1px solid var(--gray-200);
+            background: #f0f9ff;
+            color: #0c4a6e;
+            border: 1px solid #bae6fd;
+        }
+
+        .message.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray-600);
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            border: 2px solid var(--gray-300);
+            border-radius: 50%;
+            border-top-color: var(--black);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 280px 1fr;
+            }
+            
+            .top-bar {
+                padding: 16px 40px;
+            }
+            
+            .content {
+                padding: 20px 40px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -483,83 +641,77 @@
             .sidebar {
                 border-right: none;
                 border-bottom: 1px solid var(--gray-200);
-                padding: 30px 20px;
                 height: auto;
                 max-height: 40vh;
-                overflow-y: auto;
+            }
+            
+            .top-bar {
+                padding: 12px 20px;
             }
             
             .content {
-                padding: 30px 20px;
-                height: auto;
-                overflow-y: auto;
-            }
-            
-            .header {
-                padding: 30px 20px 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .stats {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-                gap: 16px;
+                padding: 16px 20px;
             }
             
             .search-form {
                 flex-direction: column;
-                gap: 12px;
             }
             
-            .btn-primary {
-                width: 100%;
+            .file-type-filters {
+                flex-wrap: wrap;
             }
-        }
-
-        /* Focus states for accessibility */
-        .btn:focus-visible {
-            outline: 2px solid var(--black);
-            outline-offset: 2px;
-        }
-
-        .search-input:focus-visible {
-            outline: 2px solid var(--black);
-            outline-offset: 2px;
-        }
-
-        /* Subtle animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .book-item {
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .stat-card {
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        /* Clean selection */
-        ::selection {
-            background: var(--black);
-            color: var(--white);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Ebook Search</h1>
-            <p>Find and organize your digital library</p>
+        <!-- Top search bar -->
+        <div class="top-bar">
+            <div class="search-section">
+                <form class="search-form" onsubmit="searchBooks(event)">
+                    <input type="text" id="search-query" class="search-input" 
+                           placeholder="Search by title, author, or keywords">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+                
+                <div class="file-type-filters">
+                    <span class="filter-label">Filter by type:</span>
+                    <div id="file-type-buttons">
+                        <!-- File type buttons will be loaded here -->
+                    </div>
+                    <div class="results-per-page">
+                        <label for="results-per-page-select" class="filter-label">Per page:</label>
+                        <select id="results-per-page-select" class="results-per-page-select" onchange="changeResultsPerPage(this.value)">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="search-status" id="search-status"></div>
+            </div>
         </div>
 
         <div class="main-content">
             <!-- Sidebar -->
             <div class="sidebar">
+                <div class="sidebar-header">
+                    <h1>Ebook Search</h1>
+                    <p>Digital Library Manager</p>
+                </div>
+
+                <div class="catalog-info">
+                    <h4>Catalog Status</h4>
+                    <div id="catalog-status">
+                        <p>Loading catalog information...</p>
+                    </div>
+                    <div class="catalog-actions">
+                        <button class="btn btn-secondary btn-small" onclick="forceBuildCatalog()">Rebuild Catalog</button>
+                    </div>
+                </div>
+
                 <div class="threshold-section">
                     <label for="threshold">Similarity threshold: <span id="threshold-value">60</span>%</label>
                     <input type="range" id="threshold" class="slider" min="0" max="100" value="60">
@@ -586,15 +738,6 @@
 
             <!-- Main Content -->
             <div class="content">
-                <div class="search-section">
-                    <form class="search-form" onsubmit="searchBooks(event)">
-                        <input type="text" id="search-query" class="search-input" 
-                               placeholder="Search by title, author, or keywords">
-                        <button type="submit" class="btn btn-primary">Search</button>
-                    </form>
-                    <div class="search-status" id="search-status"></div>
-                </div>
-
                 <div id="stats" class="stats" style="display: none;">
                     <!-- Stats will be displayed here -->
                 </div>
@@ -608,10 +751,16 @@
     <script>
         // Global variables
         let currentThreshold = 60;
+        let activeFileTypes = new Set();
+        let currentPage = 1;
+        let resultsPerPage = 25;
+        let filteredResults = [];
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadDirectories();
+            loadCatalogInfo();
+            // Don't load file types on startup - they'll be built from search results
             
             // Threshold slider
             const thresholdSlider = document.getElementById('threshold');
@@ -622,6 +771,370 @@
                 thresholdValue.textContent = this.value;
             });
         });
+
+        // Load catalog information
+        async function loadCatalogInfo() {
+            try {
+                const response = await fetch('/catalog/metadata');
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('catalog-status');
+                
+                if (data.success && data.metadata && Object.keys(data.metadata).length > 0) {
+                    const lastRefresh = new Date(data.metadata.refresh_date);
+                    const totalBooks = data.metadata.total_books || 0;
+                    const buildTime = data.metadata.build_time_seconds || 0;
+                    
+                    // Calculate age
+                    const now = new Date();
+                    const ageMs = now - lastRefresh;
+                    const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24));
+                    const ageHours = Math.floor((ageMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    let ageText;
+                    if (ageDays > 0) {
+                        ageText = `${ageDays} day${ageDays > 1 ? 's' : ''} ago`;
+                    } else if (ageHours > 0) {
+                        ageText = `${ageHours} hour${ageHours > 1 ? 's' : ''} ago`;
+                    } else if (ageMinutes > 0) {
+                        ageText = `${ageMinutes} minute${ageMinutes > 1 ? 's' : ''} ago`;
+                    } else {
+                        ageText = 'Just now';
+                    }
+                    
+                    statusDiv.innerHTML = `
+                        <p><strong>${totalBooks}</strong> books cataloged</p>
+                        <p>Age: ${ageText}</p>
+                        <p>Build time: ${buildTime}s</p>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <p>No catalog found</p>
+                        <p>Click "Rebuild Catalog" to create</p>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('catalog-status').innerHTML = `
+                    <p>Error loading catalog info</p>
+                `;
+            }
+        }
+
+        // Build file type buttons from current search results
+        function buildFileTypeButtons(results) {
+            const container = document.getElementById('file-type-buttons');
+            container.innerHTML = '';
+            
+            if (!results || results.length === 0) {
+                return;
+            }
+            
+            // Count file types in current results
+            const typeCounts = {};
+            results.forEach(book => {
+                const ext = book.extension.toLowerCase();
+                typeCounts[ext] = (typeCounts[ext] || 0) + 1;
+            });
+            
+            // Sort by count (descending)
+            const sortedTypes = Object.entries(typeCounts)
+                .sort(([,a], [,b]) => b - a);
+            
+            // Only show types that have results
+            sortedTypes.forEach(([ext, count]) => {
+                if (count > 0) {
+                    const button = document.createElement('span');
+                    button.className = 'file-type-button';
+                    // Check if this type is currently active
+                    if (activeFileTypes.has(ext)) {
+                        button.classList.add('active');
+                    }
+                    button.textContent = `${ext.toUpperCase()} (${count})`;
+                    button.onclick = () => toggleFileType(ext, button);
+                    container.appendChild(button);
+                }
+            });
+        }
+
+        // Search books
+        async function searchBooks(event) {
+            event.preventDefault();
+            
+            const query = document.getElementById('search-query').value;
+            const resultsDiv = document.getElementById('results');
+            const statsDiv = document.getElementById('stats');
+            const searchStatus = document.getElementById('search-status');
+            
+            searchStatus.textContent = 'Searching your ebook library...';
+            
+            // Show loading
+            resultsDiv.innerHTML = `<div class="loading">Searching through your ebook collection...</div>`;
+            
+            try {
+                const formData = new FormData();
+                formData.append('query', query);
+                formData.append('similarity_threshold', currentThreshold);
+                // Don't send file_types - we'll filter on the client side
+                
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Store all results globally for filtering
+                    window.allResults = data.results;
+                    window.allStats = data.stats;
+                    
+                    // Reset active filters when new search is performed
+                    activeFileTypes.clear();
+                    
+                    // Build file type buttons from search results
+                    buildFileTypeButtons(data.results);
+                    
+                    // Apply current filters and display (will show all since filters are cleared)
+                    applyFileTypeFilters();
+                    
+                    searchStatus.textContent = `Found ${data.results.length} results`;
+                } else {
+                    showMessage(data.message, 'error');
+                    resultsDiv.innerHTML = '';
+                    statsDiv.style.display = 'none';
+                    searchStatus.textContent = '';
+                    // Clear file type buttons when no results
+                    document.getElementById('file-type-buttons').innerHTML = '';
+                }
+            } catch (error) {
+                showMessage('Search failed', 'error');
+                resultsDiv.innerHTML = '';
+                statsDiv.style.display = 'none';
+                searchStatus.textContent = '';
+                // Clear file type buttons on error
+                document.getElementById('file-type-buttons').innerHTML = '';
+            }
+        }
+
+        // Apply file type filters to current results
+        function applyFileTypeFilters() {
+            if (!window.allResults) return;
+            
+            filteredResults = window.allResults;
+            
+            // Filter results if file types are selected
+            if (activeFileTypes.size > 0) {
+                filteredResults = window.allResults.filter(book => 
+                    activeFileTypes.has(book.extension.toLowerCase())
+                );
+            }
+            
+            // Reset to first page when filters change
+            currentPage = 1;
+            
+            // Update stats for filtered results
+            const filteredStats = { ...window.allStats };
+            filteredStats.results_count = filteredResults.length;
+            
+            // Display paginated filtered results
+            displayPaginatedResults(filteredResults, filteredStats);
+            
+            // Update search status
+            updateSearchStatus();
+        }
+
+        // Update search status text
+        function updateSearchStatus() {
+            const searchStatus = document.getElementById('search-status');
+            const totalResults = window.allResults.length;
+            const filteredCount = filteredResults.length;
+            
+            if (activeFileTypes.size > 0) {
+                const typeFilter = Array.from(activeFileTypes).map(ext => ext.toUpperCase().replace('.', '')).join(', ');
+                searchStatus.textContent = `Showing ${filteredCount} of ${totalResults} results (${typeFilter} only)`;
+            } else {
+                searchStatus.textContent = `Found ${totalResults} results`;
+            }
+        }
+
+        // Display paginated results
+        function displayPaginatedResults(results, stats) {
+            const resultsDiv = document.getElementById('results');
+            const statsDiv = document.getElementById('stats');
+            
+            // Display stats
+            if (stats.file_types && typeof stats.file_types === 'object') {
+                const fileTypeCount = Object.keys(stats.file_types).length;
+                statsDiv.innerHTML = `
+                    <div class="stat-item">
+                        <span class="stat-number">${stats.total_books || 0}</span>
+                        <div class="stat-label">Total Books</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">${stats.total_size_gb || '0.0'} GB</span>
+                        <div class="stat-label">Total Size</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">${fileTypeCount}</span>
+                        <div class="stat-label">File Types</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">${stats.results_count || 0}</span>
+                        <div class="stat-label">Results</div>
+                    </div>
+                `;
+            } else {
+                // Fallback for old stats format
+                statsDiv.innerHTML = `
+                    <div class="stat-item">
+                        <span class="stat-number">${stats.total_books || 0}</span>
+                        <div class="stat-label">Total Books</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">${stats.total_size_mb || 0} MB</span>
+                        <div class="stat-label">Total Size</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">${stats.file_types || 0}</span>
+                        <div class="stat-label">File Types</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">${stats.results_count || 0}</span>
+                        <div class="stat-label">Results</div>
+                    </div>
+                `;
+            }
+            statsDiv.style.display = 'grid';
+            
+            // Handle empty results
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div class="message">No books match your search criteria.</div>';
+                return;
+            }
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(results.length / resultsPerPage);
+            const startIndex = (currentPage - 1) * resultsPerPage;
+            const endIndex = startIndex + resultsPerPage;
+            const currentResults = results.slice(startIndex, endIndex);
+            
+            // Display pagination info and controls
+            const paginationHtml = totalPages > 1 ? `
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing ${startIndex + 1}-${Math.min(endIndex, results.length)} of ${results.length} results
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn-pagination" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Previous</button>
+                        ${generatePageNumbers(currentPage, totalPages)}
+                        <button class="btn-pagination" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>
+                    </div>
+                </div>
+            ` : '';
+            
+            // Display current page results
+            const resultsHtml = currentResults.map(book => `
+                <div class="result-item">
+                    <div class="result-header">
+                        <h3 class="result-title">${escapeHtml(book.filename)}</h3>
+                        <div class="result-meta-top">
+                            <span class="result-score">${book.score}%</span>
+                            <span class="result-size">${book.size_mb} MB</span>
+                            <span class="result-type">${book.extension.replace('.', '').toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="result-path">${escapeHtml(book.directory)}</div>
+                </div>
+            `).join('');
+            
+            resultsDiv.innerHTML = paginationHtml + '<div class="results-list">' + resultsHtml + '</div>' + (totalPages > 1 ? paginationHtml : '');
+        }
+
+        // Generate page numbers for pagination
+        function generatePageNumbers(currentPage, totalPages) {
+            let pages = '';
+            const maxVisiblePages = 5;
+            
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            // Adjust start if we're near the end
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            // Add first page if not visible
+            if (startPage > 1) {
+                pages += `<button class="btn-pagination" onclick="changePage(1)">1</button>`;
+                if (startPage > 2) {
+                    pages += '<span class="pagination-ellipsis">...</span>';
+                }
+            }
+            
+            // Add page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                pages += `<button class="btn-pagination ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+            
+            // Add last page if not visible
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pages += '<span class="pagination-ellipsis">...</span>';
+                }
+                pages += `<button class="btn-pagination" onclick="changePage(${totalPages})">${totalPages}</button>`;
+            }
+            
+            return pages;
+        }
+
+        // Change page
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(filteredResults.length / resultsPerPage)) return;
+            currentPage = page;
+            displayPaginatedResults(filteredResults, window.allStats);
+        }
+
+        // Display results (updated to use pagination)
+        function displayResults(results, stats) {
+            // This function now just calls the paginated version
+            displayPaginatedResults(results, stats);
+        }
+
+        // Toggle file type filter (updated to work on results)
+        function toggleFileType(ext, button) {
+            if (activeFileTypes.has(ext)) {
+                activeFileTypes.delete(ext);
+                button.classList.remove('active');
+            } else {
+                activeFileTypes.add(ext);
+                button.classList.add('active');
+            }
+            
+            // Apply filters to current results
+            applyFileTypeFilters();
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            
+            messagesDiv.appendChild(messageElement);
+            
+            setTimeout(() => {
+                messageElement.remove();
+            }, 5000);
+        }
 
         // Load directories
         async function loadDirectories() {
@@ -741,37 +1254,14 @@
             }
         }
 
-        // Search books
-        async function searchBooks(event) {
-            event.preventDefault();
-            
-            const query = document.getElementById('search-query').value;
-            const resultsDiv = document.getElementById('results');
-            const statsDiv = document.getElementById('stats');
-            const searchForm = document.querySelector('.search-form');
-            const searchStatus = document.getElementById('search-status');
-            const searchInput = document.getElementById('search-query');
-            const searchButton = searchForm.querySelector('button');
-            
-            // Disable form during search
-            searchForm.classList.add('searching');
-            searchInput.disabled = true;
-            searchButton.disabled = true;
-            searchStatus.textContent = 'Searching your ebook library...';
-            
-            // Show loading
-            resultsDiv.innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <div>Searching through your ebook collection...</div>
-                </div>`;
-            
+        // Force rebuild catalog
+        async function forceBuildCatalog() {
             try {
+                showMessage('Rebuilding catalog...', 'info');
                 const formData = new FormData();
-                formData.append('query', query);
-                formData.append('similarity_threshold', currentThreshold);
+                formData.append('force_refresh', 'true');
                 
-                const response = await fetch('/search', {
+                const response = await fetch('/catalog/build', {
                     method: 'POST',
                     body: formData
                 });
@@ -779,87 +1269,21 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    displayResults(data.results, data.stats);
-                    searchStatus.textContent = `Found ${data.results.length} results`;
+                    showMessage(data.message, 'success');
+                    loadCatalogInfo();
                 } else {
                     showMessage(data.message, 'error');
-                    resultsDiv.innerHTML = '';
-                    statsDiv.style.display = 'none';
-                    searchStatus.textContent = '';
                 }
             } catch (error) {
-                showMessage('Search failed', 'error');
-                resultsDiv.innerHTML = '';
-                statsDiv.style.display = 'none';
-                searchStatus.textContent = '';
-            } finally {
-                // Re-enable form
-                searchForm.classList.remove('searching');
-                searchInput.disabled = false;
-                searchButton.disabled = false;
+                showMessage('Failed to rebuild catalog', 'error');
             }
         }
 
-        // Display results
-        function displayResults(results, stats) {
-            const resultsDiv = document.getElementById('results');
-            const statsDiv = document.getElementById('stats');
-            
-            // Display stats
-            statsDiv.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-value">${stats.total_books}</div>
-                    <div class="stat-label">Total books</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${stats.total_size_mb}</div>
-                    <div class="stat-label">Size (MB)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${stats.file_types}</div>
-                    <div class="stat-label">File types</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${stats.results_count}</div>
-                    <div class="stat-label">Results</div>
-                </div>
-            `;
-            statsDiv.style.display = 'grid';
-            
-            // Display results
-            if (results.length === 0) {
-                resultsDiv.innerHTML = '<div class="message">No books match your search criteria.</div>';
-                return;
-            }
-            
-            resultsDiv.innerHTML = results.map(book => `
-                <div class="book-item">
-                    <div class="book-info">
-                        <div class="book-title">${book.filename}</div>
-                        <div class="book-details">
-                            ${book.directory}<br>
-                            ${book.size_mb} MB • ${book.extension.toUpperCase()}
-                        </div>
-                    </div>
-                    <div>
-                        <span class="match-score">${book.score}%</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Show message
-        function showMessage(message, type) {
-            const messagesDiv = document.getElementById('messages');
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${type}`;
-            messageElement.textContent = message;
-            
-            messagesDiv.appendChild(messageElement);
-            
-            setTimeout(() => {
-                messageElement.remove();
-            }, 5000);
+        // Change results per page
+        function changeResultsPerPage(value) {
+            resultsPerPage = parseInt(value);
+            currentPage = 1; // Reset to first page when changing results per page
+            displayPaginatedResults(filteredResults, window.allStats);
         }
     </script>
 </body>

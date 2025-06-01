@@ -13,11 +13,11 @@ services:
       - "${HOME}/Downloads:/mnt/downloads:ro" 
       - "${HOME}/Books:/mnt/books:ro"
       - "${HOME}/Desktop:/mnt/desktop:ro"
-      - "/home/pi/Elements/Books:/mnt/kindle:ro"  # Add Kindle books mount
       # Add more volume mounts as needed for your ebook locations
       # Example for additional directories:
       # - "/path/to/your/ebooks:/mnt/ebooks:ro"
       # - "/path/to/calibre/library:/mnt/calibre:ro"
+      # - "/home/pi/Elements/Books:/mnt/kindle:ro"  # Add Kindle books mount if path exists
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped

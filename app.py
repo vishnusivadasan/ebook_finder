@@ -16,7 +16,7 @@ templates = Jinja2Templates(directory="templates")
 # Mount static files (directory already exists from Dockerfile)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Initialize searcher
+# Initialize searcher with catalog
 searcher = EbookSearcher()
 
 # Global state for directories (in production, use Redis/database)
@@ -28,11 +28,15 @@ async def read_root(request: Request):
     valid_dirs = [d for d in search_directories if os.path.exists(d)]
     invalid_dirs = [d for d in search_directories if not os.path.exists(d)]
     
+    # Get catalog metadata
+    catalog_metadata = searcher.get_catalog_metadata()
+    
     return templates.TemplateResponse("index.html", {
         "request": request,
         "valid_dirs": valid_dirs,
         "invalid_dirs": invalid_dirs,
-        "total_dirs": len(search_directories)
+        "total_dirs": len(search_directories),
+        "catalog_metadata": catalog_metadata
     })
 
 @app.post("/search")
@@ -40,29 +44,19 @@ async def search_books(
     query: str = Form(""),
     similarity_threshold: int = Form(60)
 ):
-    """Search for ebooks"""
+    """Search for ebooks using catalog"""
     try:
-        # Get valid directories
-        valid_search_directories = [d for d in search_directories if os.path.exists(d)]
-        
-        if not valid_search_directories:
-            return JSONResponse({
-                "success": False,
-                "message": "No valid search directories configured",
-                "results": []
-            })
-        
-        # Find all ebook files
-        all_books = searcher.find_ebook_files(valid_search_directories)
+        # Get all books from catalog
+        all_books = searcher.get_catalog_books()
         
         if not all_books:
             return JSONResponse({
                 "success": False,
-                "message": "No ebook files found in the specified directories",
+                "message": "No ebook files found in catalog. Try refreshing the catalog.",
                 "results": []
             })
         
-        # Search for matching books
+        # Search for matching books (no file type filtering here - done on client)
         if query.strip():
             results = searcher.search_books(query, all_books, similarity_threshold)
         else:
@@ -80,21 +74,14 @@ async def search_books(
                 "score": score
             })
         
-        # Calculate statistics
-        total_size = sum(book["size_mb"] for book in all_books)
-        extensions = set(book["extension"] for book in all_books)
-        directories = set(book["directory"] for book in all_books)
+        # Get current stats
+        stats = searcher.get_catalog_stats()
+        stats["results_count"] = len(formatted_results)
         
         return JSONResponse({
             "success": True,
             "results": formatted_results,
-            "stats": {
-                "total_books": len(all_books),
-                "total_size_mb": round(total_size, 1),
-                "file_types": len(extensions),
-                "directories": len(directories),
-                "results_count": len(formatted_results)
-            }
+            "stats": stats
         })
         
     except Exception as e:
@@ -102,6 +89,80 @@ async def search_books(
             "success": False,
             "message": f"Search error: {str(e)}",
             "results": []
+        })
+
+@app.post("/catalog/build")
+async def build_catalog(force_refresh: bool = Form(False)):
+    """Build or refresh the ebook catalog"""
+    try:
+        valid_search_directories = [d for d in search_directories if os.path.exists(d)]
+        
+        if not valid_search_directories:
+            return JSONResponse({
+                "success": False,
+                "message": "No valid search directories configured"
+            })
+        
+        catalog = searcher.build_catalog(valid_search_directories, force_refresh=force_refresh)
+        
+        return JSONResponse({
+            "success": True,
+            "message": f"Catalog built successfully with {catalog['metadata']['total_books']} books",
+            "metadata": catalog['metadata'],
+            "stats": catalog['stats']
+        })
+        
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Failed to build catalog: {str(e)}"
+        })
+
+@app.get("/catalog/metadata")
+async def get_catalog_metadata():
+    """Get catalog metadata"""
+    try:
+        metadata = searcher.get_catalog_metadata()
+        return JSONResponse({
+            "success": True,
+            "metadata": metadata
+        })
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Failed to get catalog metadata: {str(e)}"
+        })
+
+@app.get("/catalog/stats")
+async def get_catalog_stats():
+    """Get catalog statistics"""
+    try:
+        stats = searcher.get_catalog_stats()
+        return JSONResponse({
+            "success": True,
+            "stats": stats
+        })
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Failed to get catalog stats: {str(e)}"
+        })
+
+@app.get("/catalog/file-types")
+async def get_file_types():
+    """Get available file types from catalog"""
+    try:
+        stats = searcher.get_catalog_stats()
+        file_types = stats.get('file_types', {})
+        
+        return JSONResponse({
+            "success": True,
+            "file_types": file_types
+        })
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Failed to get file types: {str(e)}"
         })
 
 @app.get("/directories")
