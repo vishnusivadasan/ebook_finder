@@ -1,13 +1,14 @@
-# Ultra-minimal FastAPI build
-FROM python:3.12-alpine
+# FastAPI build with Calibre for ebook conversion
+FROM python:3.12-slim
 
-# Install system dependencies including C++ compiler for python-Levenshtein
-RUN apk add --no-cache --virtual .build-deps \
+# Install system dependencies including Calibre for ebook conversion
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    calibre \
+    curl \
     gcc \
     g++ \
-    musl-dev \
-    make \
-    cmake
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Set working directory
 WORKDIR /app
@@ -18,7 +19,6 @@ COPY requirements.txt requirements.txt
 # Install Python dependencies
 RUN pip install --no-cache-dir --no-compile --disable-pip-version-check \
     -r requirements.txt \
-    && apk del .build-deps \
     && find /usr/local/lib/python3.12 -name "*.pyc" -delete \
     && find /usr/local/lib/python3.12 -name "__pycache__" -type d -exec rm -rf {} + \
     && rm -rf /root/.cache/pip
@@ -26,18 +26,23 @@ RUN pip install --no-cache-dir --no-compile --disable-pip-version-check \
 # Copy application files
 COPY app.py app.py
 COPY ebook_search.py .
+COPY ebook_converter.py .
+COPY kindle_email.py .
+COPY conf.py .
+COPY test_conversion.py .
 COPY templates/ templates/
 COPY static/ static/
 
 # Create mount points, static directory, and cache directory
 RUN mkdir -p /mnt/{ebooks,documents,downloads,books,desktop,calibre} \
-    && mkdir -p /tmp/app-cache
+    && mkdir -p /tmp/app-cache \
+    && mkdir -p /tmp/ebook_conversion
 
 # Create non-root user
-RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
+RUN groupadd -g 1000 app && useradd -u 1000 -g app -s /bin/bash app
 
 # Change ownership
-RUN chown -R app:app /app /tmp/app-cache
+RUN chown -R app:app /app /tmp/app-cache /tmp/ebook_conversion
 
 # Switch to non-root user
 USER app

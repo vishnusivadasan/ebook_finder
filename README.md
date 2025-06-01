@@ -168,11 +168,11 @@ python app.py
 
 ## Docker Image Details
 
-- **Size**: ~226MB (highly optimized)
-- **Base**: Python 3.11 Alpine Linux
+- **Size**: ~1.14GB (includes Calibre for ebook conversion)
+- **Base**: Python 3.12 Debian Slim
 - **Startup**: ~2 seconds
 - **Memory**: ~50MB runtime usage
-- **Dependencies**: 5 core packages
+- **Dependencies**: Core packages + Calibre
 
 ## Usage
 
@@ -224,7 +224,9 @@ The system implements an advanced conversion process to ensure maximum Kindle co
 - ✅ **Status Reporting**: Shows what conversions were performed
 
 #### Setup Requirements
-1. **Calibre Installation** (recommended): `brew install calibre`
+1. **Calibre Installation**: 
+   - **Docker**: Automatically installed in container (no action needed)
+   - **Local development**: Install with `brew install calibre` (macOS)
 2. **Gmail Configuration**: Set up Gmail app password for email delivery
 3. **Kindle Email**: Configure your Kindle's email address
 
@@ -350,11 +352,11 @@ docker images | grep ebook-search
 
 | Metric | Value |
 |--------|-------|
-| Docker Image Size | ~200MB |
+| Docker Image Size | ~1.14GB (includes Calibre) |
 | Startup Time | ~2 seconds |
 | Memory Usage | ~40MB |
-| Dependencies | 4 packages |
-| Base Image | Python 3.11 Alpine |
+| Dependencies | Core packages + Calibre |
+| Base Image | Python 3.12 Debian Slim |
 | Search Speed | <50ms for 6000+ books |
 
 ## Troubleshooting

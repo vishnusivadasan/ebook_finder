@@ -40,8 +40,9 @@ This double conversion process cleans up any formatting issues and ensures maxim
 
 ### Dependencies
 
-- **Calibre**: Primary conversion engine (recommended)
-  - Install: `brew install calibre` (macOS) or `apt-get install calibre` (Ubuntu)
+- **Calibre**: Primary conversion engine (installed in Docker container)
+  - **Container**: Automatically installed via Dockerfile
+  - **Local development**: Install with `brew install calibre` (macOS) or `apt-get install calibre` (Ubuntu)
 - **ebooklib**: Python library for ebook handling (fallback/future use)
 
 ## Usage
@@ -101,14 +102,22 @@ Response:
 
 Run the test script to verify the conversion setup:
 
+**In Docker container:**
+```bash
+docker exec -it ebook-search python test_conversion.py
+```
+
+**For local development:**
 ```bash
 python test_conversion.py
 ```
 
 This will:
-1. Check if Calibre is properly installed
-2. Test conversion capabilities
-3. Attempt conversion with sample files (if available)
+1. Check if running in a container environment
+2. Verify available mount points and temp directories
+3. Check if Calibre is properly installed
+4. Test conversion capabilities
+5. Attempt conversion with sample files (if available)
 
 ## File Flow
 
@@ -134,15 +143,35 @@ Other Files → Copy → Email → Kindle
 
 ## Configuration
 
-The conversion process is automatic and requires no user configuration. However, you can:
+The conversion process is automatic and requires no user configuration. 
 
-1. **Install Calibre** for best conversion quality
-2. **Check conversion status** via the API
+**In Docker container:**
+- Calibre is automatically installed and configured
+- Temporary files use `/tmp/ebook_conversion` directory
+- No additional setup required
+
+**For local development:**
+1. **Install Calibre** for conversion functionality
+2. **Check conversion status** via the API  
 3. **Monitor logs** for conversion details
 
 ## Troubleshooting
 
 ### Calibre Not Found
+
+**In Docker container:**
+```bash
+# Calibre should be automatically available
+# Check if container was built with latest Dockerfile
+docker exec -it ebook-search ebook-convert --version
+
+# If not available, rebuild the container
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+**For local development:**
 ```bash
 # macOS
 brew install calibre
