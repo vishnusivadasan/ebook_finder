@@ -13,7 +13,7 @@ services:
       - "${HOME}/Downloads:/mnt/downloads:ro" 
       - "${HOME}/Books:/mnt/books:ro"
       - "${HOME}/Desktop:/mnt/desktop:ro"
-      - "/Users/vishnusivadasan/smbshare/Books/Kindle:/mnt/kindle:ro"  # Add Kindle books mount
+      - "/home/pi/Elements/Books:/mnt/kindle:ro"  # Add Kindle books mount
       # Add more volume mounts as needed for your ebook locations
       # Example for additional directories:
       # - "/path/to/your/ebooks:/mnt/ebooks:ro"
