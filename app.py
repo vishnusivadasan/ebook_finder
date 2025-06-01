@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import List, Optional
 from ebook_search import EbookSearcher
 from kindle_email import kindle_sender
+from ebook_converter import ebook_converter
 import json
 
 app = FastAPI(title="Ebook Search System", description="A lightweight ebook search system")
@@ -256,7 +257,7 @@ async def send_to_kindle(
     file_path: str = Form(...),
     custom_subject: str = Form(None)
 ):
-    """Send a book file to Kindle via email"""
+    """Send a book file to Kindle via email with format conversion for compatibility"""
     try:
         result = kindle_sender.send_book_to_kindle(file_path, custom_subject)
         
@@ -264,20 +265,26 @@ async def send_to_kindle(
             return JSONResponse({
                 "success": True,
                 "message": result['message'],
-                "file_path": result['file_path']
+                "file_path": result['file_path'],
+                "conversion_performed": result.get('conversion_performed', False),
+                "conversion_message": result.get('conversion_message', '')
             })
         else:
             return JSONResponse({
                 "success": False,
                 "message": result['message'],
-                "file_path": result['file_path']
+                "file_path": result['file_path'],
+                "conversion_performed": result.get('conversion_performed', False),
+                "conversion_message": result.get('conversion_message', '')
             }, status_code=400)
             
     except Exception as e:
         return JSONResponse({
             "success": False,
             "message": f"Unexpected error: {str(e)}",
-            "file_path": file_path
+            "file_path": file_path,
+            "conversion_performed": False,
+            "conversion_message": ""
         }, status_code=500)
 
 @app.post("/kindle/validate")
@@ -329,6 +336,23 @@ async def set_gmail_password(app_password: str = Form(...)):
         return JSONResponse({
             "success": False,
             "message": f"Failed to set password: {str(e)}"
+        }, status_code=500)
+
+@app.get("/kindle/conversion-info")
+async def get_conversion_info():
+    """Get ebook conversion capabilities and status"""
+    try:
+        conversion_info = ebook_converter.get_conversion_info()
+        
+        return JSONResponse({
+            "success": True,
+            "conversion_info": conversion_info
+        })
+        
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Failed to get conversion info: {str(e)}"
         }, status_code=500)
 
 @app.get("/healthz")

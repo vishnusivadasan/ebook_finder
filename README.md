@@ -12,6 +12,8 @@ A lightweight, web-based ebook search system that helps you find and organize yo
 - 🐳 **Docker Ready**: Optimized deployment with minimal footprint
 - ⚡ **High Performance**: FastAPI backend for speed and efficiency
 - 📋 **Copy Paths**: Copy full file paths to clipboard with one click
+- 📱 **Send to Kindle**: Email books directly to your Kindle device
+- 🔄 **Smart Format Conversion**: Automatic EPUB/MOBI conversion for better Kindle compatibility
 
 ## Search Features
 
@@ -195,6 +197,38 @@ python app.py
 - 🗑️ **Remove directories**: Click the trash icon next to any directory
 - 🔄 **Reset to defaults**: Restore original default directories
 - 🗑️ **Clear all**: Remove all directories to start fresh
+
+### 📱 Kindle Integration
+
+This system includes powerful Kindle integration features:
+
+#### Send to Kindle
+- **Direct Email Delivery**: Send books directly to your Kindle device via email
+- **Format Conversion**: Automatic format conversion for maximum compatibility
+- **Smart Processing**: Handles EPUB, MOBI, and other formats seamlessly
+
+#### Kindle Conversion Fix
+The system implements an advanced conversion process to ensure maximum Kindle compatibility:
+
+**For EPUB files:**
+1. EPUB → MOBI → EPUB conversion chain
+2. Cleans up formatting issues that can cause display problems
+
+**For MOBI/AZW files:**
+1. Direct MOBI → EPUB conversion for modern Kindle devices
+
+**Benefits:**
+- ✅ **Improved Compatibility**: Fixes formatting issues that cause display problems
+- ✅ **Transparent Process**: Automatic conversion without user intervention
+- ✅ **Fallback Safe**: Sends original file if conversion fails
+- ✅ **Status Reporting**: Shows what conversions were performed
+
+#### Setup Requirements
+1. **Calibre Installation** (recommended): `brew install calibre`
+2. **Gmail Configuration**: Set up Gmail app password for email delivery
+3. **Kindle Email**: Configure your Kindle's email address
+
+See `KINDLE_CONVERSION_FIX.md` for detailed information about the conversion process.
 
 ## Default Search Locations
 

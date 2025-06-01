@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional
 import logging
 from conf import email_config
+from ebook_converter import ebook_converter
 
 logger = logging.getLogger(__name__)
 
@@ -76,11 +77,13 @@ class KindleEmailSender:
         return result
     
     def send_book_to_kindle(self, file_path: str, custom_subject: str = None) -> dict:
-        """Send a book file to Kindle via email"""
+        """Send a book file to Kindle via email with format conversion for compatibility"""
         result = {
             'success': False,
             'message': '',
-            'file_path': file_path
+            'file_path': file_path,
+            'conversion_performed': False,
+            'conversion_message': ''
         }
         
         # Validate file first
@@ -95,39 +98,65 @@ class KindleEmailSender:
             result['message'] = 'Gmail app password not configured. Please set GMAIL_APP_PASSWORD environment variable or provide it via API.'
             return result
         
+        # Perform conversion for Kindle compatibility
+        file_to_send = file_path
+        original_filename = Path(file_path).name
+        
         try:
+            # Apply Kindle compatibility conversion
+            conversion_success, conversion_message, converted_file_path = ebook_converter.convert_for_kindle_compatibility(file_path)
+            
+            if conversion_success and converted_file_path:
+                file_to_send = converted_file_path
+                result['conversion_performed'] = True
+                result['conversion_message'] = conversion_message
+                logger.info(f"Conversion successful for {original_filename}: {conversion_message}")
+            else:
+                # If conversion fails, still try to send the original file
+                result['conversion_performed'] = False
+                result['conversion_message'] = f"Conversion failed: {conversion_message}. Sending original file."
+                logger.warning(f"Conversion failed for {original_filename}: {conversion_message}")
+            
+            # Re-validate the file to send (in case conversion changed the size)
+            final_validation = self.validate_file_for_kindle(file_to_send)
+            if not final_validation['valid']:
+                result['message'] = f"Converted file validation failed: {final_validation['reason']}"
+                return result
+            
             # Prepare email
             msg = MIMEMultipart()
             msg['From'] = self.gmail_address
             msg['To'] = self.kindle_email
             
             # Set subject
-            filename = Path(file_path).name
             if custom_subject:
                 msg['Subject'] = custom_subject
             else:
-                msg['Subject'] = f'Book: {filename}'
+                msg['Subject'] = f'Book: {original_filename}'
             
-            # Email body
+            # Email body with conversion info
+            conversion_info = f"\nConversion: {result['conversion_message']}" if result['conversion_performed'] else "\nNo conversion performed."
+            
             body = f"""
 This book was sent automatically from your Ebook Search System.
 
-Book: {filename}
-Size: {validation['file_size_mb']} MB
+Original Book: {original_filename}
+Final Size: {final_validation['file_size_mb']} MB{conversion_info}
 
 Enjoy reading!
 """
             msg.attach(MIMEText(body, 'plain'))
             
-            # Attach the book file
-            with open(file_path, 'rb') as attachment:
+            # Attach the book file (original or converted)
+            with open(file_to_send, 'rb') as attachment:
                 part = MIMEBase('application', 'octet-stream')
                 part.set_payload(attachment.read())
             
             encoders.encode_base64(part)
+            # Always use original filename for attachment
             part.add_header(
                 'Content-Disposition',
-                f'attachment; filename= {filename}'
+                f'attachment; filename= {original_filename}'
             )
             msg.attach(part)
             
@@ -141,18 +170,29 @@ Enjoy reading!
             server.quit()
             
             result['success'] = True
-            result['message'] = f'Successfully sent "{filename}" to Kindle ({self.kindle_email})'
-            logger.info(f"Successfully sent {filename} to Kindle")
+            success_msg = f'Successfully sent "{original_filename}" to Kindle ({self.kindle_email})'
+            if result['conversion_performed']:
+                success_msg += f' with conversion: {result["conversion_message"]}'
+            result['message'] = success_msg
+            logger.info(f"Successfully sent {original_filename} to Kindle")
             
         except Exception as e:
             error_msg = f'Failed to send email: {str(e)}'
             result['message'] = error_msg
-            logger.error(f"Failed to send {filename} to Kindle: {e}")
+            logger.error(f"Failed to send {original_filename} to Kindle: {e}")
+        finally:
+            # Clean up any temporary conversion files
+            try:
+                ebook_converter.cleanup()
+            except Exception as cleanup_error:
+                logger.warning(f"Failed to cleanup conversion files: {cleanup_error}")
         
         return result
     
     def get_kindle_info(self) -> dict:
         """Get current Kindle email configuration"""
+        converter_info = ebook_converter.get_conversion_info()
+        
         return {
             'gmail_address': self.gmail_address,
             'kindle_email': self.kindle_email,
@@ -160,7 +200,8 @@ Enjoy reading!
             'smtp_port': self.smtp_port,
             'max_attachment_size_mb': self.max_attachment_size_mb,
             'app_password_configured': bool(self.gmail_app_password or self.get_gmail_app_password_from_env()),
-            'supported_formats': list(self.supported_formats)
+            'supported_formats': list(self.supported_formats),
+            'conversion_info': converter_info
         }
 
 # Global instance
