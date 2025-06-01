@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "last_refresh": 1748782297.7452438,
-    "refresh_date": "2025-06-01T16:51:37.745280",
+    "last_refresh": 1748791461.675296,
+    "refresh_date": "2025-06-01T19:24:21.675308",
     "total_books": 6564,
     "search_directories": [
       "/Users/vishnusivadasan/Documents",
@@ -12,7 +12,7 @@
       "/Users/vishnusivadasan/smbshare/Books/Kindle",
       "/Users/vishnusivadasan/Documents/Devrepos/kindle_web"
     ],
-    "build_time_seconds": 18.98
+    "build_time_seconds": 18.88
   },
   "books": [
     {

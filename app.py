@@ -17,8 +17,11 @@ templates = Jinja2Templates(directory="templates")
 # Mount static files (directory already exists from Dockerfile)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Check if fast search mode is enabled (for Raspberry Pi)
+FAST_SEARCH_MODE = os.getenv("FAST_SEARCH_MODE", "false").lower() == "true"
+
 # Initialize searcher with catalog
-searcher = EbookSearcher()
+searcher = EbookSearcher(fast_search_mode=FAST_SEARCH_MODE)
 
 # Global state for directories (in production, use Redis/database)
 search_directories = searcher.get_common_ebook_directories()

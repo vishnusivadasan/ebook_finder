@@ -9,11 +9,12 @@ from fuzzywuzzy import fuzz
 import re
 
 class EbookSearcher:
-    def __init__(self, catalog_file: str = "ebook_catalog.json"):
+    def __init__(self, catalog_file: str = "ebook_catalog.json", fast_search_mode: bool = False):
         self.supported_formats = ['.pdf', '.epub', '.mobi', '.azw', '.azw3', '.djvu', '.fb2', '.txt']
         self.catalog_file = catalog_file
         self.catalog_max_age_days = 7  # Refresh catalog if older than 7 days
         self.daily_refresh_hour = 3    # Auto-refresh at 3 AM if container running
+        self.fast_search_mode = fast_search_mode  # Enable fast search for Raspberry Pi
         
     def get_common_ebook_directories(self) -> List[str]:
         """Get common directories where ebooks might be stored"""
@@ -90,9 +91,57 @@ class EbookSearcher:
                 
         return ebook_files
     
+    def search_books_fast(self, query: str, ebook_files: List[Dict[str, str]]) -> List[Tuple[Dict[str, str], int]]:
+        """Fast search using simple string matching - optimized for Raspberry Pi"""
+        if not query.strip():
+            return [(book, 100) for book in ebook_files]
+        
+        results = []
+        query_terms = query.lower().split()  # Split query into words
+        
+        for book in ebook_files:
+            filename_no_ext = os.path.splitext(book['filename'])[0].lower()
+            
+            # Simple scoring based on word matches
+            score = 0
+            
+            # Check for exact phrase match (highest score)
+            if query.lower() in filename_no_ext:
+                score = 100
+            else:
+                # Count matching words
+                matching_words = 0
+                for term in query_terms:
+                    if term in filename_no_ext:
+                        matching_words += 1
+                
+                # Score based on percentage of words found
+                if matching_words > 0:
+                    score = int((matching_words / len(query_terms)) * 90)
+                    
+                    # Bonus for word starts (e.g., "har" matches "harry")
+                    for term in query_terms:
+                        if any(word.startswith(term) for word in filename_no_ext.split()):
+                            score += 5
+                    
+                    score = min(100, score)
+            
+            # Only include results with some relevance
+            if score > 0:
+                results.append((book, score))
+        
+        # Sort by score (descending)
+        results.sort(key=lambda x: x[1], reverse=True)
+        return results
+    
     def search_books(self, query: str, ebook_files: List[Dict[str, str]], 
                     similarity_threshold: int = 60) -> List[Tuple[Dict[str, str], int]]:
         """Search for books matching the query"""
+        # Use fast search mode if enabled
+        if self.fast_search_mode:
+            return self.search_books_fast(query, ebook_files)
+            
+        # Original fuzzy search (slower but more accurate)
         if not query.strip():
             return [(book, 100) for book in ebook_files]
         
