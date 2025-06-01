@@ -5,16 +5,14 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Dict, Tuple
-from fuzzywuzzy import fuzz
 import re
 
 class EbookSearcher:
-    def __init__(self, catalog_file: str = "ebook_catalog.json", fast_search_mode: bool = False):
+    def __init__(self, catalog_file: str = "ebook_catalog.json"):
         self.supported_formats = ['.pdf', '.epub', '.mobi', '.azw', '.azw3', '.djvu', '.fb2', '.txt']
         self.catalog_file = catalog_file
         self.catalog_max_age_days = 7  # Refresh catalog if older than 7 days
         self.daily_refresh_hour = 3    # Auto-refresh at 3 AM if container running
-        self.fast_search_mode = fast_search_mode  # Enable fast search for Raspberry Pi
         
     def get_common_ebook_directories(self) -> List[str]:
         """Get common directories where ebooks might be stored"""
@@ -91,8 +89,8 @@ class EbookSearcher:
                 
         return ebook_files
     
-    def search_books_fast(self, query: str, ebook_files: List[Dict[str, str]]) -> List[Tuple[Dict[str, str], int]]:
-        """Fast search using simple string matching - optimized for Raspberry Pi"""
+    def search_books(self, query: str, ebook_files: List[Dict[str, str]]) -> List[Tuple[Dict[str, str], int]]:
+        """Search for books using simple string matching"""
         if not query.strip():
             return [(book, 100) for book in ebook_files]
         
@@ -129,43 +127,6 @@ class EbookSearcher:
             # Only include results with some relevance
             if score > 0:
                 results.append((book, score))
-        
-        # Sort by score (descending)
-        results.sort(key=lambda x: x[1], reverse=True)
-        return results
-    
-    def search_books(self, query: str, ebook_files: List[Dict[str, str]], 
-                    similarity_threshold: int = 60) -> List[Tuple[Dict[str, str], int]]:
-        """Search for books matching the query"""
-        # Use fast search mode if enabled
-        if self.fast_search_mode:
-            return self.search_books_fast(query, ebook_files)
-            
-        # Original fuzzy search (slower but more accurate)
-        if not query.strip():
-            return [(book, 100) for book in ebook_files]
-        
-        results = []
-        query_lower = query.lower()
-        
-        for book in ebook_files:
-            filename_no_ext = os.path.splitext(book['filename'])[0].lower()
-            
-            # Calculate similarity scores
-            exact_match = query_lower in filename_no_ext
-            fuzzy_score = fuzz.partial_ratio(query_lower, filename_no_ext)
-            token_score = fuzz.token_sort_ratio(query_lower, filename_no_ext)
-            
-            # Use the highest score
-            best_score = max(fuzzy_score, token_score)
-            
-            # Boost score for exact matches
-            if exact_match:
-                best_score = min(100, best_score + 20)
-            
-            # Only include results above threshold
-            if best_score >= similarity_threshold:
-                results.append((book, best_score))
         
         # Sort by score (descending)
         results.sort(key=lambda x: x[1], reverse=True)

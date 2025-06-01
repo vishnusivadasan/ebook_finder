@@ -353,49 +353,6 @@
             border-color: var(--gray-400);
         }
 
-        .threshold-section {
-            margin-bottom: 32px;
-        }
-
-        .threshold-section label {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: 500;
-            color: var(--black);
-            font-size: 14px;
-        }
-
-        .slider {
-            width: 100%;
-            height: 4px;
-            border-radius: 2px;
-            background: var(--gray-200);
-            outline: none;
-            margin-bottom: 8px;
-            -webkit-appearance: none;
-        }
-
-        .slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--black);
-            cursor: pointer;
-            border: 2px solid var(--white);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--black);
-            cursor: pointer;
-            border: 2px solid var(--white);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
         .directory-section h3 {
             font-size: 16px;
             font-weight: 600;
@@ -796,6 +753,13 @@
             color: var(--gray-600);
             margin-bottom: 8px;
         }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-section h3 {
+        }
     </style>
 </head>
 <body>
@@ -853,11 +817,6 @@
                     </div>
                 </div>
 
-                <div class="threshold-section">
-                    <label for="threshold">Similarity threshold: <span id="threshold-value">60</span>%</label>
-                    <input type="range" id="threshold" class="slider" min="0" max="100" value="60">
-                </div>
-
                 <div class="directory-section">
                     <h3>Search directories</h3>
                     
@@ -887,26 +846,16 @@
 
     <script>
         // Global variables
-        let currentThreshold = 60;
-        let activeFileTypes = new Set();
         let currentPage = 1;
-        let resultsPerPage = 25;
+        let resultsPerPage = 20;
         let filteredResults = [];
+        let activeFileTypes = new Set(); // Track active file type filters
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadDirectories();
             loadCatalogInfo();
             // Don't load file types on startup - they'll be built from search results
-            
-            // Threshold slider
-            const thresholdSlider = document.getElementById('threshold');
-            const thresholdValue = document.getElementById('threshold-value');
-            
-            thresholdSlider.addEventListener('input', function() {
-                currentThreshold = this.value;
-                thresholdValue.textContent = this.value;
-            });
         });
 
         // Load catalog information
@@ -1014,7 +963,6 @@
             try {
                 const formData = new FormData();
                 formData.append('query', query);
-                formData.append('similarity_threshold', currentThreshold);
                 // Don't send file_types - we'll filter on the client side
                 
                 console.log('Sending request to /search');

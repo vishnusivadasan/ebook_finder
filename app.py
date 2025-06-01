@@ -17,11 +17,8 @@ templates = Jinja2Templates(directory="templates")
 # Mount static files (directory already exists from Dockerfile)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Check if fast search mode is enabled (for Raspberry Pi)
-FAST_SEARCH_MODE = os.getenv("FAST_SEARCH_MODE", "false").lower() == "true"
-
 # Initialize searcher with catalog
-searcher = EbookSearcher(fast_search_mode=FAST_SEARCH_MODE)
+searcher = EbookSearcher()
 
 # Global state for directories (in production, use Redis/database)
 search_directories = searcher.get_common_ebook_directories()
@@ -45,8 +42,7 @@ async def read_root(request: Request):
 
 @app.post("/search")
 async def search_books(
-    query: str = Form(""),
-    similarity_threshold: int = Form(60)
+    query: str = Form("")
 ):
     """Search for ebooks using catalog"""
     search_start_time = time.time()
@@ -65,7 +61,7 @@ async def search_books(
         
         # Search for matching books (no file type filtering here - done on client)
         if query.strip():
-            results = searcher.search_books(query, all_books, similarity_threshold)
+            results = searcher.search_books(query, all_books)
         else:
             results = [(book, 100) for book in all_books]
         

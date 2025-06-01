@@ -32,7 +32,5 @@ services:
       # - "/home/pi/Elements/Books:/mnt/kindle:ro"  # Add Kindle books mount if path exists
     environment:
       - PYTHONUNBUFFERED=1
-      # Enable fast search mode for Raspberry Pi (set to "true" for better performance)
-      - FAST_SEARCH_MODE=${FAST_SEARCH_MODE:-false}
     restart: unless-stopped
     container_name: ebook-search 
