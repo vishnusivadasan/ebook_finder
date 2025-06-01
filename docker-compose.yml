@@ -11,12 +11,18 @@ services:
       # Bind mount source code for development - changes reflect immediately
       - ".:/app"
       # Mount your ebook directories from host to container
-      - "${HOME}/Documents:/mnt/documents:ro"
-      - "${HOME}/Downloads:/mnt/downloads:ro" 
-      - "${PI_BOOKS_PATH:-./dummy_books}:/mnt/books:ro"  # Pi books or dummy dir for development
-      - "${HOME}/Desktop:/mnt/desktop:ro"
-      # Add more volume mounts as needed for your ebook locations
-      # Example for additional directories:
+      # COMMENTED OUT - These were mounting personal Mac directories:
+      # - "${HOME}/Documents:/mnt/documents:ro"
+      # - "${HOME}/Downloads:/mnt/downloads:ro" 
+      
+      # For Raspberry Pi books or dummy directory for development
+      - "${PI_BOOKS_PATH:-./dummy_books}:/mnt/books:ro"
+      
+      # COMMENTED OUT - Personal Mac directory:
+      # - "${HOME}/Desktop:/mnt/desktop:ro"
+      
+      # Add specific ebook directories only - uncomment and modify as needed:
+      # - "${HOME}/Books:/mnt/books:ro"
       # - "/path/to/your/ebooks:/mnt/ebooks:ro"
       # - "/path/to/calibre/library:/mnt/calibre:ro"
       # - "/home/pi/Elements/Books:/mnt/kindle:ro"  # Add Kindle books mount if path exists
