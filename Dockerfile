@@ -2,7 +2,8 @@
 FROM python:3.12-alpine
 
 # Install system dependencies including C++ compiler for python-Levenshtein
-RUN apk add --no-cache --virtual .build-deps \
+RUN apk add --no-cache curl && \
+    apk add --no-cache --virtual .build-deps \
     gcc \
     g++ \
     musl-dev \
