@@ -1,11 +1,18 @@
 # Ultra-minimal FastAPI build with Debian Slim
 FROM python:3.12-slim
 
-# Install minimal system dependencies with GPG key handling for ARM/Pi compatibility
+# Install system dependencies including build tools for Python packages
 RUN apt-get update --allow-insecure-repositories && \
     apt-get install -y --no-install-recommends --allow-unauthenticated \
     curl \
     gnupg \
+    build-essential \
+    python3-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    libffi-dev \
+    libssl-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
