@@ -1,14 +1,10 @@
-# Ultra-minimal FastAPI build
-FROM python:3.12-alpine
+# Ultra-minimal FastAPI build with Debian Slim
+FROM python:3.12-slim
 
-# Install system dependencies including C++ compiler for python-Levenshtein
-RUN apk add --no-cache curl && \
-    apk add --no-cache --virtual .build-deps \
-    gcc \
-    g++ \
-    musl-dev \
-    make \
-    cmake
+# Install minimal system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -16,10 +12,9 @@ WORKDIR /app
 # Copy requirements first for better caching
 COPY requirements.txt requirements.txt
 
-# Install Python dependencies
+# Install Python dependencies using pre-built wheels
 RUN pip install --no-cache-dir --no-compile --disable-pip-version-check \
     -r requirements.txt \
-    && apk del .build-deps \
     && find /usr/local/lib/python3.12 -name "*.pyc" -delete \
     && find /usr/local/lib/python3.12 -name "__pycache__" -type d -exec rm -rf {} + \
     && rm -rf /root/.cache/pip
@@ -35,7 +30,7 @@ RUN mkdir -p /mnt/{ebooks,documents,downloads,books,desktop,calibre} \
     && mkdir -p /tmp/app-cache
 
 # Create non-root user
-RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
+RUN groupadd -g 1000 app && useradd -u 1000 -g app -s /bin/sh -m app
 
 # Change ownership
 RUN chown -R app:app /app /tmp/app-cache
