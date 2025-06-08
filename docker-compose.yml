@@ -7,6 +7,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8501:8501"
+    # Add security options for Raspberry Pi compatibility
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_TIME
     volumes:
       # Bind mount source code for development - changes reflect immediately
       - ".:/app"

@@ -52,5 +52,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # Expose port
 EXPOSE 8501
 
-# Run FastAPI with uvicorn
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8501"] 
+# Run FastAPI with uvicorn - use loop configuration for ARM/Pi compatibility
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8501", "--loop", "asyncio", "--no-use-colors"] 
