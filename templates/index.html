@@ -861,7 +861,8 @@
 
         .kindle-info {
             display: flex;
-            gap: 16px;
+            flex-direction: column;
+            gap: 12px;
             margin-top: 12px;
             padding: 12px;
             background: var(--white);
@@ -872,8 +873,10 @@
 
         .kindle-info-item {
             display: flex;
-            flex-direction: column;
-            gap: 2px;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 8px;
+            min-height: 20px;
         }
 
         .kindle-info-label {
@@ -881,10 +884,14 @@
             color: var(--gray-600);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            min-width: 60px;
+            flex-shrink: 0;
         }
 
         .kindle-info-value {
             color: var(--gray-800);
+            font-size: 11px;
+            line-height: 1.3;
         }
 
         .kindle-status {
@@ -1163,11 +1170,15 @@
                         <div class="kindle-info" id="kindle-info">
                             <div class="kindle-info-item">
                                 <span class="kindle-info-label">Gmail</span>
-                                <span class="kindle-info-value">mysterious.18.vishnu@gmail.com</span>
+                                <span class="kindle-info-value" id="gmail-address">
+                                    Loading...
+                                </span>
                             </div>
                             <div class="kindle-info-item">
                                 <span class="kindle-info-label">Kindle</span>
-                                <span class="kindle-info-value">auoasismit987@kindle.com</span>
+                                <span class="kindle-info-value" id="kindle-address">
+                                    Loading...
+                                </span>
                             </div>
                             <div class="kindle-info-item">
                                 <span class="kindle-info-label">Status</span>
@@ -2061,6 +2072,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    // Update status
                     const statusElement = document.getElementById('kindle-status');
                     
                     if (data.info.app_password_configured) {
@@ -2070,9 +2082,34 @@
                         statusElement.textContent = 'Not Configured';
                         statusElement.className = 'kindle-status not-configured';
                     }
+                    
+                    // Update email addresses with split at @ symbol
+                    const gmailElement = document.getElementById('gmail-address');
+                    const kindleElement = document.getElementById('kindle-address');
+                    
+                    if (data.info.gmail_address) {
+                        const gmailParts = data.info.gmail_address.split('@');
+                        if (gmailParts.length === 2) {
+                            gmailElement.innerHTML = `${gmailParts[0]}<br/>@${gmailParts[1]}`;
+                        } else {
+                            gmailElement.textContent = data.info.gmail_address;
+                        }
+                    }
+                    
+                    if (data.info.kindle_email) {
+                        const kindleParts = data.info.kindle_email.split('@');
+                        if (kindleParts.length === 2) {
+                            kindleElement.innerHTML = `${kindleParts[0]}<br/>@${kindleParts[1]}`;
+                        } else {
+                            kindleElement.textContent = data.info.kindle_email;
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Failed to load Kindle info:', error);
+                // Set fallback text if loading fails
+                document.getElementById('gmail-address').textContent = 'Error loading';
+                document.getElementById('kindle-address').textContent = 'Error loading';
             }
         }
     </script>
