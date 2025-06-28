@@ -60,3 +60,14 @@ test_kindle.py
 dummy_books/
 
 *.ipynb
+
+*.epub
+*.mobi
+*.pdf
+*.txt
+*.docx
+*.doc
+*.xls
+*.xlsx
+*.ppt
+*.pptx
