@@ -17,6 +17,7 @@ services:
       
       # For Raspberry Pi books or dummy directory for development
       - "${PI_BOOKS_PATH:-./dummy_books}:/mnt/books:ro"
+      - "/srv/media/books:/mnt/ebooks:ro"
       
       # COMMENTED OUT - Personal Mac directory:
       # - "${HOME}/Desktop:/mnt/desktop:ro"
