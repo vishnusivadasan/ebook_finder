@@ -8,6 +8,9 @@ from email import encoders
 from pathlib import Path
 from typing import Optional
 import logging
+import subprocess
+import tempfile
+import shutil
 from conf import email_config
 
 logger = logging.getLogger(__name__)
@@ -75,13 +78,70 @@ class KindleEmailSender:
         result['reason'] = 'File is valid for Kindle'
         return result
     
-    def send_book_to_kindle(self, file_path: str, custom_subject: str = None) -> dict:
-        """Send a book file to Kindle via email"""
+    def _convert_book(self, file_path: str) -> dict:
+        """Convert book to a Kindle-friendly format using Calibre"""
+        
+        file_extension = Path(file_path).suffix.lower()
+        temp_dir = tempfile.mkdtemp(dir="/tmp/app-cache")
+        
+        try:
+            if file_extension == '.epub':
+                # Convert EPUB -> MOBI -> EPUB
+                mobi_path = os.path.join(temp_dir, Path(file_path).stem + ".mobi")
+                new_epub_path = os.path.join(temp_dir, Path(file_path).stem + "_converted.epub")
+                
+                # EPUB to MOBI
+                conv_to_mobi = subprocess.run(['ebook-convert', file_path, mobi_path], capture_output=True, text=True)
+                if conv_to_mobi.returncode != 0:
+                    return {'success': False, 'message': f"EPUB to MOBI conversion failed: {conv_to_mobi.stderr}"}
+                
+                # MOBI to EPUB
+                conv_to_epub = subprocess.run(['ebook-convert', mobi_path, new_epub_path], capture_output=True, text=True)
+                if conv_to_epub.returncode != 0:
+                    return {'success': False, 'message': f"MOBI to EPUB conversion failed: {conv_to_epub.stderr}"}
+
+                return {'success': True, 'file_path': new_epub_path, 'message': 'EPUB converted to MOBI and back to EPUB.'}
+
+            elif file_extension == '.mobi':
+                # Convert MOBI -> EPUB
+                epub_path = os.path.join(temp_dir, Path(file_path).stem + ".epub")
+                result = subprocess.run(['ebook-convert', file_path, epub_path], capture_output=True, text=True)
+                
+                if result.returncode != 0:
+                    return {'success': False, 'message': f"MOBI to EPUB conversion failed: {result.stderr}"}
+                
+                return {'success': True, 'file_path': epub_path, 'message': 'MOBI successfully converted to EPUB.'}
+            
+            else:
+                return {'success': False, 'message': 'No conversion necessary for this file type.'}
+                
+        finally:
+            # Clean up the temp directory but be careful with what you delete
+            # Let's not remove it for now for debugging, but in production, this should be handled.
+            # shutil.rmtree(temp_dir)
+            pass
+    
+    def send_book_to_kindle(self, file_path: str, custom_subject: str = None, convert_book: bool = False) -> dict:
+        """Send a book file to Kindle via email, with optional conversion"""
         result = {
             'success': False,
             'message': '',
             'file_path': file_path
         }
+
+        original_file_path = file_path
+        
+        if convert_book:
+            logger.info(f"Starting conversion for {file_path}")
+            conversion_result = self._convert_book(file_path)
+            
+            if conversion_result['success']:
+                file_path = conversion_result['file_path']
+                logger.info(f"Book converted successfully: {conversion_result['message']}")
+            else:
+                logger.error(f"Book conversion failed: {conversion_result['message']}")
+                result['message'] = conversion_result['message']
+                return result
         
         # Validate file first
         validation = self.validate_file_for_kindle(file_path)
@@ -131,6 +191,13 @@ Enjoy reading!
             )
             msg.attach(part)
             
+            # If the book was converted, delete the temporary file after attaching it
+            if convert_book and file_path != original_file_path:
+                temp_dir = os.path.dirname(file_path)
+                # Make sure we don't delete original files
+                if temp_dir.startswith('/tmp'):
+                    shutil.rmtree(temp_dir)
+
             # Send email using configured SMTP settings
             server = smtplib.SMTP(self.smtp_server, self.smtp_port)
             server.starttls()  # Enable TLS encryption

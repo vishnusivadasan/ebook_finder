@@ -1547,7 +1547,10 @@
                                 <span class="result-path-text">${escapeHtml(book.full_path)}</span>
                                 <div class="result-actions">
                                     <button class="copy-path-btn" id="copy-btn-single-${globalGroupIndex}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-single-${globalGroupIndex}')">⧉</button>
-                                    ${kindleSupported ? `<button class="kindle-btn" id="kindle-btn-single-${globalGroupIndex}" onclick="sendToKindle('${escapeHtml(book.full_path)}', 'kindle-btn-single-${globalGroupIndex}')">📱 Send to Kindle</button>` : ''}
+                                    <div class="kindle-actions" style="display: inline-flex; align-items: center; gap: 8px;">
+                                        ${kindleSupported ? `<input type="checkbox" id="convert-cb-single-${globalGroupIndex}" class="kindle-convert-cb" title="Convert book before sending" checked> <label for="convert-cb-single-${globalGroupIndex}" style="font-size: 12px; color: var(--gray-600); cursor: pointer;">Convert</label>`: ''}
+                                        ${kindleSupported ? `<button class="kindle-btn" id="kindle-btn-single-${globalGroupIndex}" onclick="sendToKindle('${escapeHtml(book.full_path)}', 'kindle-btn-single-${globalGroupIndex}', 'convert-cb-single-${globalGroupIndex}')">📱 Send to Kindle</button>` : ''}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1565,7 +1568,10 @@
                                 <span class="result-path-text">${escapeHtml(book.full_path)}</span>
                                 <div class="result-actions">
                                     <button class="copy-path-btn" id="copy-btn-group-${globalGroupIndex}-${subIndex}" onclick="copyPath('${escapeHtml(book.full_path)}', 'copy-btn-group-${globalGroupIndex}-${subIndex}')">⧉</button>
-                                    ${kindleSupported ? `<button class="kindle-btn" id="kindle-btn-group-${globalGroupIndex}-${subIndex}" onclick="sendToKindle('${escapeHtml(book.full_path)}', 'kindle-btn-group-${globalGroupIndex}-${subIndex}')">📱 Send to Kindle</button>` : ''}
+                                    <div class="kindle-actions" style="display: inline-flex; align-items: center; gap: 8px;">
+                                        ${kindleSupported ? `<input type="checkbox" id="convert-cb-group-${globalGroupIndex}-${subIndex}" class="kindle-convert-cb" title="Convert book before sending" checked> <label for="convert-cb-group-${globalGroupIndex}-${subIndex}" style="font-size: 12px; color: var(--gray-600); cursor: pointer;">Convert</label>` : ''}
+                                        ${kindleSupported ? `<button class="kindle-btn" id="kindle-btn-group-${globalGroupIndex}-${subIndex}" onclick="sendToKindle('${escapeHtml(book.full_path)}', 'kindle-btn-group-${globalGroupIndex}-${subIndex}', 'convert-cb-group-${globalGroupIndex}-${subIndex}')">📱 Send to Kindle</button>` : ''}
+                                    </div>
                                 </div>
                             </div>
                             <div class="result-subitem-meta">
@@ -1965,49 +1971,59 @@
             return supportedExtensions.includes(extension.toLowerCase());
         }
 
-        // Send a file to Kindle
-        async function sendToKindle(path, buttonId) {
+        // Send a book to Kindle
+        async function sendToKindle(filePath, buttonId, checkboxId) {
+            const button = document.getElementById(buttonId);
+            if (!button) return;
+
+            const checkbox = document.getElementById(checkboxId);
+            
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.classList.add('sending');
+            button.innerHTML = '📤 Sending...';
+
+            const formData = new FormData();
+            formData.append('file_path', filePath);
+            
+            if (checkbox && checkbox.checked) {
+                formData.append('convert_book', 'true');
+            }
+
             try {
-                const button = document.getElementById(buttonId);
-                const originalText = button.innerHTML;
-                
-                // Update button state
-                button.disabled = true;
-                button.classList.add('sending');
-                button.innerHTML = '📱 Sending...';
-                
-                const formData = new FormData();
-                formData.append('file_path', path);
-                
                 const response = await fetch('/kindle/send', {
                     method: 'POST',
                     body: formData
                 });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showMessage(data.message, 'success');
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(result.message, 'success');
                     button.classList.remove('sending');
                     button.classList.add('sent');
                     button.innerHTML = '✓ Sent';
                     
-                    // Keep the sent state for a few seconds, then hide the button
                     setTimeout(() => {
                         button.style.display = 'none';
                     }, 3000);
+
                 } else {
-                    throw new Error(data.message);
+                    showMessage(result.message, 'error');
+                    button.disabled = false;
+                    button.classList.remove('sending');
+                    button.innerHTML = originalText;
                 }
             } catch (error) {
                 console.error('Failed to send to Kindle:', error);
                 showMessage(`Failed to send to Kindle: ${error.message}`, 'error');
-                
-                // Reset button state
-                const button = document.getElementById(buttonId);
                 button.disabled = false;
                 button.classList.remove('sending');
-                button.innerHTML = '📱 Send to Kindle';
+                button.innerHTML = originalText;
             }
         }
 

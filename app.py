@@ -254,11 +254,16 @@ async def clear_directories():
 @app.post("/kindle/send")
 async def send_to_kindle(
     file_path: str = Form(...),
-    custom_subject: str = Form(None)
+    custom_subject: str = Form(None),
+    convert_book: bool = Form(False)
 ):
     """Send a book file to Kindle via email"""
     try:
-        result = kindle_sender.send_book_to_kindle(file_path, custom_subject)
+        result = kindle_sender.send_book_to_kindle(
+            file_path, 
+            custom_subject, 
+            convert_book
+        )
         
         if result['success']:
             return JSONResponse({
