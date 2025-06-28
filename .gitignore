@@ -58,3 +58,5 @@ dummy_books/
 ebook_catalog.json 
 test_kindle.py
 dummy_books/
+
+*.ipynb
