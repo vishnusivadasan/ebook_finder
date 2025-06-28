@@ -1,14 +1,18 @@
 # Ultra-minimal FastAPI build
-FROM python:3.12-alpine
+FROM python:3.12-slim
 
-# Install system dependencies including C++ compiler for python-Levenshtein
-RUN apk add --no-cache curl && \
-    apk add --no-cache --virtual .build-deps \
-    gcc \
-    g++ \
-    musl-dev \
-    make \
-    cmake
+# Install system dependencies including C++ compiler for python-Levenshtein and Calibre
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        calibre \
+        gcc \
+        g++ \
+        make \
+        cmake \
+        build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -19,7 +23,6 @@ COPY requirements.txt requirements.txt
 # Install Python dependencies
 RUN pip install --no-cache-dir --no-compile --disable-pip-version-check \
     -r requirements.txt \
-    && apk del .build-deps \
     && find /usr/local/lib/python3.12 -name "*.pyc" -delete \
     && find /usr/local/lib/python3.12 -name "__pycache__" -type d -exec rm -rf {} + \
     && rm -rf /root/.cache/pip
@@ -31,11 +34,11 @@ COPY templates/ templates/
 COPY static/ static/
 
 # Create mount points, static directory, and cache directory
-RUN mkdir -p /mnt/{ebooks,documents,downloads,books,desktop,calibre} \
+RUN mkdir -p /mnt/ebooks /mnt/documents /mnt/downloads /mnt/books /mnt/desktop /mnt/calibre /mnt/kindle \
     && mkdir -p /tmp/app-cache
 
 # Create non-root user
-RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
+RUN groupadd --gid 1000 app && useradd --uid 1000 --gid app --shell /bin/bash --create-home app
 
 # Change ownership
 RUN chown -R app:app /app /tmp/app-cache
